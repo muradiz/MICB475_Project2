@@ -1,6 +1,6 @@
 Team 8 Lab Notebook
 MICB475
-Mari Aiko Job, Zee Muradi, Carly Pistawka, Janet Wuu
+Mari Aiko Job, Zee Muradi, Carly Pistawka, Janet Wu
 
 
 6 month olds or 12 months old for both datasets
@@ -68,9 +68,52 @@ Agenda
 2. Discuss potential topics and research questions for Project 2. 
 
 Meeting Minutes
+GitHub for Desktop
+Two avenues -> lifestyle differences (Peru vs United States), comparing 6 and 12 months infants for both Peru and US (looking at differences and similarities between populations) 
+Make sure that datasets can be comparable, double check methodology that can affect microbiome
+Check supplementary materials 
+Adding a lot of questions in proposals is better
+We are thinking of moving away from diet since there is a UJEMI paper that used the “Eating Behavior in Infants” dataset
+Add another variable to our question → maybe female vs male?
+Flesh out ideas on what information we have right now
+Start on proposal as soon as possible
+Differential abundance testing - DESeq2 
+Can look at diversity metrics and generate table that compares study 1 vs study 2 (then 6 months vs 12 months + descriptions) 
+Piecrust2 - to annotate  
+Can check Nature papers to see how other authors explain their methodology?
+Controlling for variables - remove effects of other variables that will affect the ones you are studying (filtering them out?)
 
+Do we have methods and supplementary/anything for the feeding preference paper???
+Reach out to one or two of groups that have already published using dataset 
+Continue conversation with authors that we are in contact with
+May be a difficult study to work with since there is no publication
+If ends up being huge issue, we can just use the one dataset
+Ask evelyn how to find more information
+
+Inflammatory effects in the microbiome (anemia paper)
+Crp (c reactive protein) = inflammatory marker
+Look at stage of infection - how many samples do we have that we could use
+Check if any other categories are inflammation-related
 
 For next meeting
+Start proposal looking only at anemia dataset
+Check methodology we want to use
+Check formatting for paper
+Finalize research question as soon as possible
+Start on DESeq? 
+Work on the proposal as much as we can
+Process data via qiime2 
+Up to importing data to R
+Create OTU Table
+Look at the papers that use the infant dataset
 
+Have a rough draft of proposal, do qiime2 stuff, DESeq2 
+Doesn’t have to be perfect, just something to start with
+
+
+In future: we will need to create ‘table 1’
+collect all info and summarize it up
+number males and females, number 12m vs 6m
+ different variables that overlap
 
 
