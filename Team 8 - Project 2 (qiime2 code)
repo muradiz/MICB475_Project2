@@ -1,0 +1,53 @@
+## Team 8 - Project 2 
+
+#Importing data using a manifest file
+qiime tools import \
+--type "SampleData[SequencesWithQuality]" \
+--input-format SingleEndFastqManifestPhred33V2 \
+--input-path ./anemia_manifest.txt \
+--output-path ./demux_seqs.qza
+
+# Create visualization of demultiplexed samples
+qiime demux summarize \
+--i-data ./demux_seqs.qza \
+--o-visualization ./demux_seqs.qzv
+
+#Copy this from server to local computer to visualize demux_seqs.qzv
+scp root@10.19.139.129:/data/project_2/demux_seqs.qzv C:/Users/agura
+
+# Determine ASVs with DADA2
+qiime dada2 denoise-single \
+--i-demultiplexed-seqs demux_seqs.qza \
+--p-trim-left 0 \
+--p-trunc-len 300 \
+--o-representative-sequences rep-seqs.qza \
+--o-table table.qza \
+--o-denoising-stats stats.qza
+  
+# Visualize DADA2 stats
+qiime metadata tabulate \
+--m-input-file stats.qza \
+--o-visualization stats.qzv
+
+# Visualize ASVs stats
+qiime feature-table summarize \
+--i-table table.qza \
+--o-visualization table.qzv \
+--m-sample-metadata-file anemia_metadata.txt
+  
+qiime feature-table tabulate-seqs \
+--i-data rep-seqs.qza \
+--o-visualization rep-seqs.qzv
+
+### Retraining classifier
+#replace the ref-otus.qza with the correct classifier in the server 
+#replace primer sequences with your correct sequences
+#replace trunc-len with the one you defined in your denoising step
+
+####HAVEN'T BEEN DONE
+#qiime feature-classifier extract-reads \
+  --i-sequences ref-otus.qza \
+  --p-f-primer GTGCCAGCMGCCGCGGTAA \
+  --p-r-primer GGACTACHVGGGTWTCTAAT \
+  --p-trunc-len 300 \
+  --o-reads ref-seqs.qza\
