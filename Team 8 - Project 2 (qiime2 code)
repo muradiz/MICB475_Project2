@@ -13,7 +13,7 @@ qiime demux summarize \
 --o-visualization ./demux_seqs.qzv
 
 #Copy this from server to local computer to visualize demux_seqs.qzv
-scp root@10.19.139.129:/data/project_2/demux_seqs.qzv C:/Users/agura
+scp 
 
 # Determine ASVs with DADA2
 qiime dada2 denoise-single \
