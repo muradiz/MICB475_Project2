@@ -1,0 +1,21 @@
+Error in training classifier
+
+### Did this while in /data/project_2 (as my working directory)
+qiime feature-classifier extract-reads \
+--i-sequences /mnt/datasets/classifiers/silva-138-99-nb-classifier.qza \
+--p-f-primer GTGCCAGCMGCCGCGGTAA \
+--p-r-primer GGACTACHVGGGTWTCTAAT \
+--p-trunc-len 300 \
+--o-reads ref-seqs.qza \
+
+### Did this while in /mnt/datasets/classifiers (as my working directory)
+qiime feature-classifier extract-reads \
+--i-sequences silva-138-99-nb-classifier.qza \
+--p-f-primer GTGCCAGCMGCCGCGGTAA \
+--p-r-primer GGACTACHVGGGTWTCTAAT \
+--p-trunc-len 300 \
+--o-reads /data/project_2/ref-seqs.qza \
+
+##Both have been showing the same error: Invalid value for '--i-sequences': Expected an artifact of at least
+  type FeatureData[Sequence]. An artifact of type TaxonomicClassifier was
+  provided.
