@@ -77,3 +77,19 @@ qiime feature-classifier extract-reads \
 --p-trunc-len 300 \
 --o-reads ref-seqs.qza \
 
+###Taxonomic analysis
+qiime feature-classifier classify-sklearn \
+--i-classifier /mnt/datasets/classifiers/silva-138-99-nb-classifier.qza \
+--i-reads rep-seqs.qza \
+--o-classification taxonomy.qza
+
+qiime metadata tabulate \
+--m-input-file taxonomy.qza \
+--o-visualization taxonomy.qzv
+  
+# Taxonomy barplots
+qiime taxa barplot \
+--i-table table.qza \
+--i-taxonomy taxonomy.qza \
+--m-metadata-file anemia_metadata.txt \
+--o-visualization taxa-bar-plots.qzv
