@@ -39,15 +39,41 @@ qiime feature-table tabulate-seqs \
 --i-data rep-seqs.qza \
 --o-visualization rep-seqs.qzv
 
-### Retraining classifier
-#replace the ref-otus.qza with the correct classifier in the server 
-#replace primer sequences with your correct sequences
+###Retraining the classifier
+
+##First, make a directory for the retraining files, working directory is /data/project_2
+mkdir training-feature-classifier
+cd training-feature-classifier
+
+##Downloading SILVA reference datasets, working directory is /data/project_2/training-feature-classifier 
+wget \
+-O "silva-138-99-seqs.qza" \
+"https://data.qiime2.org/2020.8/common/silva-138-99-seqs.qza"
+
+wget \
+-O "silva-138-99-tax.qza" \
+"https://data.qiime2.org/2020.8/common/silva-138-99-tax.qza"
+
+wget \
+-O "silva-138-99-seqs-515-806.qza" \
+"https://data.qiime2.org/2020.8/common/silva-138-99-seqs-515-806.qza"
+
+wget \
+-O "silva-138-99-tax-515-806.qza" \
+"https://data.qiime2.org/2020.8/common/silva-138-99-tax-515-806.qza"
+
+#move to directory where I'd like to find the output ref-seq.qza file
+cd ..
+
+##Classifier training, working directory is /data/project_2
+#replace the ref-otus.qza with the full length SILVA classifier sequence
+#replace primer sequences with your correct sequences 
 #replace trunc-len with the one you defined in your denoising step
 
-####HAVEN'T BEEN DONE
-#qiime feature-classifier extract-reads \
-  --i-sequences ref-otus.qza \
-  --p-f-primer GTGCCAGCMGCCGCGGTAA \
-  --p-r-primer GGACTACHVGGGTWTCTAAT \
-  --p-trunc-len 300 \
-  --o-reads ref-seqs.qza\
+qiime feature-classifier extract-reads \
+--i-sequences /data/project_2/training-feature-classifiers/silva-138-99-seqs.qza \
+--p-f-primer GTGCCAGCMGCCGCGGTAA \
+--p-r-primer GGACTACHVGGGTWTCTAAT \
+--p-trunc-len 300 \
+--o-reads ref-seqs.qza \
+
