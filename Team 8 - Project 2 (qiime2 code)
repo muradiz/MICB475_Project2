@@ -94,3 +94,9 @@ qiime taxa barplot \
 --m-metadata-file /data/project_2/anemia_metadata.txt \
 --o-visualization taxa-bar-plots_trimmed_250.qzv
 
+# Taxonomy-based filtering
+qiime taxa filter-table \
+--i-table table_250.qza \
+--i-taxonomy taxonomy_trimmed_250.qza \
+--p-exclude mitochondria,chloroplast \
+--o-filtered-table table-no-mitochondria-no-chloroplast.qza
