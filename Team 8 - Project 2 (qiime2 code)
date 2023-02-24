@@ -15,32 +15,33 @@ qiime demux summarize \
 #Copy this from server to local computer to visualize demux_seqs.qzv
 scp 
 
+##Trimming to 250 bp 
 # Determine ASVs with DADA2
 qiime dada2 denoise-single \
 --i-demultiplexed-seqs demux_seqs.qza \
 --p-trim-left 0 \
---p-trunc-len 300 \
---o-representative-sequences rep-seqs.qza \
---o-table table.qza \
---o-denoising-stats stats.qza
+--p-trunc-len 250 \
+--o-representative-sequences /data/project_2/trimmed-to-250-data/rep-seqs_250.qza \
+--o-table /data/project_2/trimmed-to-250-data/table_250.qza \
+--o-denoising-stats /data/project_2/trimmed-to-250-data/stats_250.qza
   
-# Visualize DADA2 stats
+#Move to trimmed-to-250-data directory
+# Visualize DADA2 stats, working directory is /data/project_2/trimmed-to-250-data
 qiime metadata tabulate \
---m-input-file stats.qza \
---o-visualization stats.qzv
+--m-input-file stats_250.qza \
+--o-visualization stats_250.qzv
 
 # Visualize ASVs stats
 qiime feature-table summarize \
---i-table table.qza \
---o-visualization table.qzv \
---m-sample-metadata-file anemia_metadata.txt
-  
+--i-table table_250.qza \
+--o-visualization table_250.qzv \
+--m-sample-metadata-file /data/project_2/anemia_metadata.txt
+
 qiime feature-table tabulate-seqs \
---i-data rep-seqs.qza \
---o-visualization rep-seqs.qzv
+--i-data rep-seqs_250.qza \
+--o-visualization rep-seqs_250.qzv
 
 ###Retraining the classifier
-
 ##First, make a directory for the retraining files, working directory is /data/project_2
 mkdir training-feature-classifier
 cd training-feature-classifier
@@ -67,36 +68,29 @@ cd ..
 
 ##Classifier training, working directory is /data/project_2
 #replace the ref-otus.qza with the full length SILVA classifier sequence
-#replace primer sequences with your correct sequences 
-#replace trunc-len with the one you defined in your denoising step
+#double-check primer sequences  
+#replace trunc-len with value used in denoising step
 
 qiime feature-classifier extract-reads \
 --i-sequences /data/project_2/training-feature-classifiers/silva-138-99-seqs.qza \
 --p-f-primer GTGCCAGCMGCCGCGGTAA \
 --p-r-primer GGACTACHVGGGTWTCTAAT \
---p-trunc-len 300 \
---o-reads ref-seqs.qza \
+--p-trunc-len 250 \
+--o-reads ref-seqs_250.qza \
 
-###Taxonomic analysis
 qiime feature-classifier classify-sklearn \
 --i-classifier /mnt/datasets/classifiers/silva-138-99-nb-classifier.qza \
---i-reads rep-seqs.qza \
---o-classification taxonomy.qza
+--i-reads rep-seqs_250.qza \
+--o-classification taxonomy_trimmed_250.qza
 
 qiime metadata tabulate \
---m-input-file taxonomy.qza \
---o-visualization taxonomy.qzv
+--m-input-file taxonomy_trimmed_250.qza \
+--o-visualization taxonomy_trimmed_250.qzv
   
 # Taxonomy barplots
 qiime taxa barplot \
---i-table table.qza \
---i-taxonomy taxonomy.qza \
---m-metadata-file anemia_metadata.txt \
---o-visualization taxa-bar-plots.qzv
+--i-table table_250.qza \
+--i-taxonomy taxonomy_trimmed_250.qza \
+--m-metadata-file /data/project_2/anemia_metadata.txt \
+--o-visualization taxa-bar-plots_trimmed_250.qzv
 
-#Taxonomy-based filtering
-qiime taxa filter-table \
---i-table table.qza \
---i-taxonomy taxonomy.qza \
---p-exclude mitochondria,chloroplast \
---o-filtered-table table-no-mitochondria-no-chloroplast.qza
