@@ -100,3 +100,18 @@ qiime taxa filter-table \
 --i-taxonomy taxonomy_trimmed_250.qza \
 --p-exclude mitochondria,chloroplast \
 --o-filtered-table table-no-mitochondria-no-chloroplast.qza
+
+#Convert .qza to .qzv file
+qiime feature-table summarize \
+--i-table table-no-mitochondria-no-chloroplast.qza \
+--o-visualization table-no-mitochondria-no-chloroplast.qzv \
+--m-sample-metadata-file /data/project_2/anemia_metadata.txt 
+
+# Generate a tree for phylogenetic diversity analyses
+qiime phylogeny align-to-tree-mafft-fasttree \
+--i-sequences rep-seqs_250.qza \
+--o-alignment aligned-rep-seqs.qza \
+--o-masked-alignment masked-aligned-rep-seqs.qza \
+--o-tree unrooted-tree.qza \
+--o-rooted-tree rooted-tree.qza 
+
