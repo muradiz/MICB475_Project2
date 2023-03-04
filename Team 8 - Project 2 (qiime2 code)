@@ -115,27 +115,44 @@ qiime phylogeny align-to-tree-mafft-fasttree \
 --o-tree unrooted-tree.qza \
 --o-rooted-tree rooted-tree.qza 
 
-# Alpha-rarefaction 
-#metadata category by age_months - if at least 10
-#sampling depth 38021: fourteen 6-month olds, ten 1-year olds
-#retain 912,504 (16.24%) features in 24 (12.44%) samples 
+#Metadata-based filtering
+###Choosing 6 and 12 month old with no anemia, no parasites
+qiime feature-table filter-samples \
+--i-table table_250.qza \
+--m-metadata-file /data/project_2/anemia_metadata.txt \
+--p-where "[anemia]='normal' AND [parasites]='N'" \
+--o-filtered-table 6_and_12_months_filtered-table.qza
+
+###Converting .qza to .qzv
+qiime feature-table summarize \
+--i-table 6_and_12_months_filtered-table.qza \
+--o-visualization 6_and_12_months_filtered-table.qzv \
+--m-sample-metadata-file /data/project_2/anemia_metadata.txt
+
+###Alpha-rarefaction
+
+#age_months - if at least 10 samples
+#sampling depth 34047: ten 6-month olds, eleven 12-month olds
+#Retained 714,987 (33.07%) features in 21 (27.63%) samples at the specifed sampling depth 
 
 qiime diversity alpha-rarefaction \
 --i-table table_250.qza \
 --i-phylogeny rooted-tree.qza \
---p-max-depth 38021 \
+--p-max-depth 34047 \
 --m-metadata-file /data/project_2/anemia_metadata.txt \
---o-visualization alpha-rarefaction_10samples.qzv
+--o-visualization alpha-rarefaction_filtered.qzv
 
-# Alpha-rarefaction
-#age_months - if at least 15 in one age group
-#sampling depth 35328: fifteen 6-month olds and twenty-two 1-year olds
-#retain 1,307,136 (23.26%) features in 37 (19.17%) samples
+
+####age_months - if at least 15 samples
+#sampling depth 29447: twenty-one 6 months, fifteen 12 months
+#Retained 1,060,092 (49.03%) features in 36 (47.37%) samples at the specifed sampling depth
+
 qiime diversity alpha-rarefaction \
 --i-table table_250.qza \
 --i-phylogeny rooted-tree.qza \
---p-max-depth 35328 \
+--p-max-depth 29447 \
 --m-metadata-file /data/project_2/anemia_metadata.txt \
---o-visualization alpha-rarefaction_15samples.qzv
+--o-visualization alpha-rarefaction_filtered_15samples.qzv
 
-
+#############Each alpha-rarefaction when viewed in qiime2 shows this message "The following metadata columns 
+have been omitted because they didn't contain categorical data, or the column consisted only of missing values: age_months"
