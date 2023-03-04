@@ -138,15 +138,4 @@ qiime diversity alpha-rarefaction \
 --m-metadata-file /data/project_2/anemia_metadata.txt \
 --o-visualization alpha-rarefaction_15samples.qzv
 
-################## MIGHT DO THIS TOO? ############################### 
-# Alpha-rarefaction
-#age_months - if at least 1/3 of samples were remaining 
-#sampling depth 31506: thirty 6-month olds, thirty-eight 1-year olds
-#retain 2,142,408 (38.12%) features in 68 (35.23%) samples 
 
-qiime diversity alpha-rarefaction \
---i-table table_250.qza \
---i-phylogeny rooted-tree.qza \
---p-max-depth 31506 \
---m-metadata-file /data/project_2/anemia_metadata.txt \
---o-visualization alpha-rarefaction_30samples.qzv
