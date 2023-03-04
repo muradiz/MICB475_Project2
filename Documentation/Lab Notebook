@@ -115,5 +115,139 @@ In future: we will need to create ‘table 1’
 collect all info and summarize it up
 number males and females, number 12m vs 6m
  different variables that overlap
+ 
+14/02/2023 W6 TM - Week 6 Team Meeting
+
+Agenda:
+
+To talk about what has been done so far in terms of preparation for the project proposal.
+To discuss the research questions and experimental aims formulated by the team.
+To finalize our research topic and question for Project 2. 
+
+Meeting Minutes
+Update from author - BRINDA has 60 different datasets but none from Peru so we might be looking at data from US as well; uses 6 months and 12 months 
+Compare our data with BRINDA R-package ?
+Aim 5 is another project, either pick Aims 1 & 4 vs Aim 5
+First 4 aims are good for the proposal
+For controls: remove anemic and have parasites
+Check how many infants we will be left with, ensure you have a big enough sample size
+Normal samples = ~80; about 4 or 5 have parasites 
+But we have to separate 6 months vs 12 months because microbiome would be too different
+Look at spread of CRP and AGP, if they are too similar, it will be difficult to get a significant difference
+Filter data correctly (stratify → put samples into specific groups)
+WHO has definition of CRP in relation to inflammation; BRINDA has definition of AGP
+CRP is for short term; AGP is for long term 
+Do not overstratify
+Aim 2 - Specify methods we would like to use in determining microbiome composition (diversity metrics to compare everything)
+Taxonomic analysis
+Keep CRP and AGP as a continuous variable????
+Start with 4 bins
+Will need to separate normal from anemia, then 6 month from 12 month
+
+logical boutique analysis - continuous analysis 
+Under additional 
+Taxonomic indicators
+- Remove anemic infants
+- Focus on inflammation
+- Malawi dataset has OTUs 
+	- Shannon index plot 
+
+
+Use qiime for diversity just to check and generate all the graphs - see which ones we are interested in 
+Finish in R - vegan r package
+Taxonomic analysis - 
+	Taxa bar charts in qiime are ugly! Dont use
+Indicator taxa analysis - R
+	Ujemi dorms paper 2022 - look and see if they published script
+Zoom meeting on Thursday 11-12; send draft on Tuesday maybe?
+	
+Decide on 250 for trimming length? Or 300?
+Try 300 first!!
+What is lost after denoising?
+
+Week 7 - Team Meeting
+
+Agenda:
+Problems with indicator species method, everyone was getting different numbers of ASVs. This would be the method we might be using in our project.
+Ask about the feasibility portion of the proposal. 
+Discuss the team’s research proposal 
+
+Meeting Minutes:
+Indicator species analysis uses machine learning algorithm, there is a little bit of randomness involved in the results 
+Further filter results → only consider things that are above a certain cutoff
+Send followup email 
+DESeq2 → we can do set seed to avoid “randomness” problem 
+Discussing aim → Sex and age effects on microbiome
+Remove sex because it will be a bigger and more complicated 
+Feasibility 
+Cut samples in half if necessary because we might not have enough samples
+10 samples per category might be too low 
+Maybe consider combining CRP and AGP 
+Bins: for proposal → high/low for CRP/AGP
+Highlight the contention in the field → some studies are contradicting
+
+
+
+For next time:
+Discuss team proposal?
+
+
+
+Feb 28 - Team Meeting
+
+Agenda:
+Discuss next steps in data processing (?) re: experimental aims
+Discuss aim 3?
+
+
+
+Meeting Minutes: 
+Aim 3 was a bit difficult to finalize because it’s highly dependent on Aim 1 
+Moving to diversity metrics in analysis and differential abundance
+Split up code objectives - alpha diversity, beta, differential abundance? 
+Use a dummy variable then when the code is finalized, swap the actual variable we’ll be studying
+If we don’t have enough samples in the bins, we can use the median instead
+Better to just do CRP high/low - based on research or based on median
+Repeat using AGP (another aim if we decide to do it)
+Avoid question of how much is CRP vs AGP
+Excel sheet of metadata - number of samples using the 
+Maybe end up doing parasites as a comparison? - 7 infants with parasites at 12M
+
+For next week:
+R script for each of the code objectives (should be at least started to be written)
+Start by doing 12 month data 
+Alpha 
+Beta
+Differential Abundance
+Binning
+?
+Once create the code, can substitute with 6 months
+
+
+March 3 - Informal Team Meeting
+Agenda
+Discuss data processing
+Discuss crp threshold
+Assign tasks for RStudio
+
+Start using 12 month (health infant) data
+Will need to filter out rows with parasites?
+Remove rows with no crp value
+
+Analyze CRP and AGP separately
+
+
+Do we need to remove anemia samples prior to rarefaction? Or can this be done afterwords in R
+Determining depth for rarefaction?
+10 vs 15 samples minimum?
+
+
+Need to remove (anemic and not collected from anemia category
+
+AIKO - rarefacted, only healthy samples with anemia
+Carly -  Filtering and splitting into files/file manipulation
+Rarefy?
+Phyloseq objects
+
 
 
