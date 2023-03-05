@@ -186,5 +186,5 @@ infant_12m_RA <- transform_sample_counts(infant_12m_rare, function(x) x/sum(x))
 plot_bar(infant_12m_RA, fill="Phylum") 
 infant_12m_phylum <- tax_glom(infant_12m_RA, taxrank = "Phylum", NArm=FALSE)
 plot_bar(infant_12m_phylum, fill="Phylum") +
-  facet_wrap(.~agp_status, scales = "free_x")
+  facet_wrap(.~crp_median, scales = "free_x")
 
