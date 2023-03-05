@@ -173,5 +173,18 @@ save(infant_12m_rare, file="infant_12m_rare.RData")
 
 
 
+##Beta Diversity Plots
+bc_dm <- distance(infant_12m_rare, method="bray")
+pcoa_bc <- ordinate(infant_12m_rare, method="PCoA", distance=bc_dm)
 
+plot_ordination(infant_12m_rare, pcoa_bc, color = "crp", shape="crp_median") +
+  scale_color_gradient(low="darkgreen", high="lightblue") +
+  labs(pch="CRP status", col = "CRP Levels")
+
+#create a taxa summaries plot
+infant_12m_RA <- transform_sample_counts(infant_12m_rare, function(x) x/sum(x))
+plot_bar(infant_12m_RA, fill="Phylum") 
+infant_12m_phylum <- tax_glom(infant_12m_RA, taxrank = "Phylum", NArm=FALSE)
+plot_bar(infant_12m_phylum, fill="Phylum") +
+  facet_wrap(.~agp_status, scales = "free_x")
 
