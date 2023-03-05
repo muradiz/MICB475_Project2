@@ -1,3 +1,9 @@
+### REQUIRED FILES:
+# anemia-metadata.txt 
+# tree.nwk
+# taxonomy.tsv
+# table_250.tsv.txt
+
 
 library(tidyverse)
 library(phyloseq)
