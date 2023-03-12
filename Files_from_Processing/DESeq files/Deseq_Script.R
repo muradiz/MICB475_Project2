@@ -1,11 +1,11 @@
 
-### REQUIRED FILES:
+### REQUIRED FILES to generate phyloseq object
 # anemia-metadata.txt 
 # tree.nwk
 # taxonomy.tsv
 # table_250.tsv.txt
 
-
+#Code from line 8-166 to make phyloseq object 
 library(tidyverse)
 library(phyloseq)
 library(dplyr)
@@ -159,60 +159,82 @@ infant_12m_filt_nolow_samps <- prune_samples(sample_sums(infant_12m_filt_nolow)>
 infant_12m_final <- subset_samples(infant_12m_filt_nolow_samps, !is.na(crp) )
 
 
-# Rarefy samples #########
-# rngseed sets a random number. If you want to reproduce this exact analysis, you need
-# to set rngseed the same number each time
-rarecurve(t(as.data.frame(otu_table(infant_12m_final))), cex=0.1)
-infant_12m_rare <- rarefy_even_depth(infant_12m_final, rngseed = 1, sample.size = 15000)
-
-infant_12m_rare
-
-
-##### Saving #####
-save(infant_12m_final, file="infant_12m_final.RData")
-save(infant_12m_rare, file="infant_12m_rare.RData")
-
-
-##Alpha Diversity Plots
-plot_richness(infant_12m_rare)
-# select certain alpha diversity metrics
-
-plot_richness(infant_12m_rare, measures = c("Shannon","Chao1"))
-# Add ggplot layers if desired to adjust visuals
-plot_richness(infant_12m_rare, x = "crp_median", measures = c("Shannon","Chao1")) +
-  xlab("crp median") +
-  geom_boxplot()
-
-
-##Beta Diversity Plots
-bc_dm <- distance(infant_12m_rare, method="bray")
-pcoa_bc <- ordinate(infant_12m_rare, method="PCoA", distance=bc_dm)
-
-plot_ordination(infant_12m_rare, pcoa_bc, color = "crp", shape="crp_median") +
-  scale_color_gradient(low="darkgreen", high="lightblue") +
-  labs(pch="CRP status", col = "CRP Levels")
-
-#create a taxa summaries plot
-infant_12m_RA <- transform_sample_counts(infant_12m_rare, function(x) x/sum(x))
-plot_bar(infant_12m_RA, fill="Phylum") 
-infant_12m_phylum <- tax_glom(infant_12m_RA, taxrank = "Phylum", NArm=FALSE)
-plot_bar(infant_12m_phylum, fill="Phylum") +
-  facet_wrap(.~crp_median, scales = "free_x")
-
-
-
-
+####DESEq ANALYSIS#### 
 
 #!/usr/bin/env Rscript
 
+#Loading the libraries
 library(tidyverse)
 library(phyloseq)
 library(DESeq2)
 
-#Loading the data (FIX THIS CODE)
-load("infant_12m_final")
+#setting random seed 
+set.seed(1)
 
 #Need to filter anything????
+infant_12m_final
 
-#DESEq
-infant_12m_deseq <- phyloseq_to_deseq2()
+#DESEq (No need to rarefaction [use infant_12m_final])
+#ERROR Message regarding genes having 0 reads.
+#Need to add '1' read count to all genes [LIMITATION]
+infant_12m_plus1 <- transform_sample_counts(infant_12m_final, function(x) x+1)
+infant_12m_deseq <- phyloseq_to_deseq2(infant_12m_plus1, ~crp_median)
+DESEQ_infant_12m <- DESeq(infant_12m_deseq)
+
+#Viewing Results
+res <- results(DESEQ_infant_12m, tidy=TRUE)
+View(res)
+
+#Filtering out the ASV results with N.A. values for p adjusted values
+filtered_res <- drop_na(res, padj)
+view(filtered_res)
+
+#### Visualizing the results of DESEq ####
+#Chose p value <0.05, and significant fold change >2
+
+
+##Volcano Plot##
+vol_plot <- ggplot(filtered_res, aes(x=log2FoldChange, y=-log(padj))) +
+            geom_point()
+vol_plot_sig <- filtered_res |>
+            mutate(significant = padj<0.05 & abs(log2FoldChange) >2) |>
+            ggplot(aes(x=log2FoldChange, y=-log10(padj), col= significant)) +
+            geom_point()
+
+vol_plot            
+vol_plot_sig
+
+#Significant ASVs table
+sigASVs <- filtered_res |>
+  filter(padj <0.05 & abs(log2FoldChange)>2) |>
+  dplyr::rename(ASV=row)
+
+save(sigASVs, file= "Files_from_Processing/DESeq files/DESEq_sigASVs")
+
+view(sigASVs)
+
+#BarPlot
+#removed any Genus that has NA
+
+sigASVs_vec <- sigASVs |>
+                pull(ASV)
+
+infant_12m_DESeq <- prune_taxa(sigASVs_vec, infant_12m_final)
+
+sigASVs <- tax_table(infant_12m_DESeq) |>
+            as.data.frame() |>
+            rownames_to_column(var="ASV") |>
+            right_join(sigASVs) |>
+            arrange(log2FoldChange) |>
+            mutate(Genus = make.unique(Genus)) |>
+            mutate(Genus = factor(Genus, levels= unique(Genus)))|>
+            drop_na(Genus) |>
+            filter(Genus != "NA.2" & Genus != "NA.1")
+
+view(sigASVs)
+
+bar_plot <- ggplot(sigASVs) +
+            geom_bar(aes(x=Genus, y=log2FoldChange), stat ="identity") +
+            geom_errorbar(aes(x=Genus, ymin=log2FoldChange-lfcSE, ymax=log2FoldChange+lfcSE)) +
+            theme(axis.text.x = element_text(angle=90, hjust=1, vjust=0.5))
+bar_plot
