@@ -1,1 +1,178 @@
 
+Title: Inflammation and Microbiome Composition on Anemic Infants In Peru
+Introduction and Background:
+
+Iron Deficiency:
+https://apps.who.int/iris/bitstream/handle/10665/331505/9789240000124-eng.pdf 
+Determination of both CRP and AGP concentrations may be important because they reflect different phases of the acute phase response that range from acute infection to chronic inflammation
+
+CRP: https://apps.who.int/iris/bitstream/handle/10665/133708/WHO_NMH_NHD_EPG_14.7_eng.pdf?sequence=1&isAllowed=y 
+ normally found at concentrations of less than 10 mg/L in the blood
+During infectious or inflammatory disease states, CRP levels rise rapidly within the first 6 to 8 hours and peak at levels of up to 350–400 mg/L after 48 hours
+CRP levels are unaffected by anaemia, protein levels, red blood cell shape or patient age or sex
+AGP levels rise more slowly in response to inflammation or infection and remain elevated longer than CRP levels
+This first international standard for human CRP serves as a reference source of defined biological activity expressed in an internationally agreed unit, being assigned a value of 0.049 mIU/ampoule
+
+
+AGP: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7185229/ 
+Serum AGP concentrations typically range from 0.4 – 1.2 mg/mL, but have been reported as high as approximately 3 mg/mL [15]. AGP rises more slowly and stays elevated longer than CRP; which can be used together to determine the stage and severity of inflammation, and has been suggested as a marker of long-term or chronic inflammation [6]. An AGP cutoff of 1.0 mg/mL has been used to adjust biomarkers of nutritional status for inflammation, however regression approaches have used concentrations of inflammatory biomarkers as continuous variables
+
+BRINDA
+Some of the key questions
+Do we need to measure biomarkers of inflammation when assessing micronutrient status?
+Do we need to measure more than one inflammation biomarker (CRP and/or AGP)?
+Brinda; Elevated CRP was defined as a CRP concentration >5 mg/L. Elevated AGP was defined as an AGP concentration >1 g/L. AGP, α-1-acid glycoprotein; 
+ we showed a more-consistent and higher magnitude of significant positive associations between stunting and elevated AGP than between stunting and elevated CRP, which potentially reflects AGP’s role as a marker of long-term inflammation as opposed to acute inflammation 
+
+
+
+Research Objectives:
+What is the relationship between inflammation and microbiome diversity for 6 and 12 months infants?
+Experimental Aims:
+To use measurements of CRP and AGP to determine which infants in the dataset qualify for inflammation
+To determine how microbiome composition differs between infants with and without inflammation
+To investigate if the differences in microbiome composition are further diversified between different sexes and different age groups
+To determine if there are any links between inflammation / microbiome with anemia 
+(BRINDA) to compare
+Microbiome diversity with infant datasets from other countries - geographical differences/regional? 
+trends/correlations between anemia, CRP, and AGP
+
+KNOWLEDGE GAP: since we need to determine what statistics will equal inflammation, how are we going to balance the CRP and AGP reads?
+
+Primers?- F515-R806 primer to flank V4
+
+Questions for Avril
+
+
+
+
+Proposed Approach/Methods
+Might want to use indicator taxa to find taxa that are present in infants with vs. without inflammation
+Chi square method? Probably can use it for something in our paper
+
+Controls
+Remove subjects with parasites
+Remove anemia subjects
+
+
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6733848/
+Microbial diversity and waz
+Taxa associated with inflammatory biomarkers
+Association of microbiota maturity or diversity with biomarkers of inflammation at 6 and 18 mo of age
+THEY HAVE DATA 
+Sequence data: https://www.ebi.ac.uk/ena/browser/view/PRJEB29433 
+Did subjects at 6, 12, 18 months
+
+
+
+
+Look at (and compare)
+Find what is significant in terms of inflamm levels and diversity, then examine whatever is significant
+Look at whether taxa at 6 m (or 12) are associated with AGP(or CRP) concentration 
+Are there any OTUs that are negatively or positively related to AGP at 6 or 12 m
+
+
+
+
+1A: Is there a difference in gut microbial composition between infants with and without inflammation
+
+6month analysis
+AND
+12month analysis
+AND 
+6-12 month shift 
+
+Follow up - are there any species that are associated with inflammation? 
+Is AGP or CRP associated with stunting? Or wasting? 
+Waz and whz
+
+(does inflammation correlate with stunted growth)
+Is inflammation an indication of anemia and is it linked with the microbiome? 
+Are the correlations seen similar to the BRINDA analysis conclusions? OR TO another study’s conclusions
+1A.1 Import and demultiplex raw sequence reads
+
+
+
+
+
+
+1A.2 Quality control
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Other ideas
+There is some evidence that breastfeeding for longer could affect crp levels. Maybe we could compare 12month infants with diets (including vs not including BM) and see if there is a relationship
+
+
+
+Overview Flow Chart:
+
+Weekly Time Frame (Gantt Chart)
+Feasibility
+References (min 6, ASM style)
+Participation Report
+Aiko
+Zee
+Carly
+Janet
+
