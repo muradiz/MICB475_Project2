@@ -1,0 +1,30 @@
+#SampleID	host_subject_id	sex	agp	agp_status	crp	crp_status	infection_status	crp_median
+11402.MC054.fastq.gz	MC054	M	0.57	normal	0.29	normal	Reference	Below
+11402.MC058.fastq.gz	MC058	M	1.75	elevated	2.3	normal	Late Convalescence	Above
+11402.MC060.fastq.gz	MC060	M	0.79	normal	0.95	normal	Reference	Above
+11402.MC068.fastq.gz	MC068	F	0.85	normal	2.83	normal	Reference	Above
+11402.MC071.fastq.gz	MC071	F	1.1	elevated	0.18	normal	Late Convalescence	Below
+11402.MC077.fastq.gz	MC077	M	0.55	normal	0.8	normal	Reference	Below
+11402.MC087.fastq.gz	MC087	F	3.89	elevated	34.78	elevated	Early Convalescence	Above
+11402.MC092.fastq.gz	MC092	M	1.28	elevated	2.46	normal	Late Convalescence	Above
+11402.MC094.fastq.gz	MC094	F	0.79	normal	0.56	normal	Reference	Below
+11402.MC095.fastq.gz	MC095	M	0.53	normal	0.24	normal	Reference	Below
+11402.MC097.fastq.gz	MC097	M	0.55	normal	1.59	normal	Reference	Above
+11402.MC102.fastq.gz	MC102	F	0.59	normal	0.67	normal	Reference	Below
+11402.MC112.fastq.gz	MC112	M	0.62	normal	0.18	normal	Reference	Below
+11402.MC116.fastq.gz	MC116	F	1.56	elevated	2.52	normal	Late Convalescence	Above
+11402.MC132.fastq.gz	MC132	F	0.65	normal	8.75	elevated	Incubation	Above
+11402.MC145.fastq.gz	MC145	M	1.17	elevated	8.78	elevated	Early Convalescence	Above
+11402.MC157.fastq.gz	MC157	F	1.44	elevated	2.24	normal	Late Convalescence	Above
+11402.MC173.fastq.gz	MC173	F	1.1	elevated	2.5	normal	Late Convalescence	Above
+11402.MC178.fastq.gz	MC178	F	1.22	elevated	3.87	normal	Late Convalescence	Above
+11402.MC179.fastq.gz	MC179	Missing: Not collected	1.93	elevated	6.82	elevated	Early Convalescence	Above
+11402.MC180.fastq.gz	MC180	M	0.98	normal	0.28	normal	Reference	Below
+11402.MC197.fastq.gz	MC197	F	0.49	normal	0.72	normal	Reference	Below
+11402.MC202.fastq.gz	MC202	F	1.44	elevated	1	normal	Late Convalescence	Above
+11402.MC203.fastq.gz	MC203	M	1.86	elevated	0.85	normal	Late Convalescence	Below
+11402.MC209.fastq.gz	MC209	F	0.59	normal	0.33	normal	Reference	Below
+11402.MC210.fastq.gz	MC210	F	0.48	normal	0.57	normal	Reference	Below
+11402.MC211.fastq.gz	MC211	F	0.73	normal	0.33	normal	Reference	Below
+11402.MC212.fastq.gz	MC212	M	0.59	normal	0.65	normal	Reference	Below
+11402.MC220.fastq.gz	MC220	F	0.93	normal	1.45	normal	Reference	Above
