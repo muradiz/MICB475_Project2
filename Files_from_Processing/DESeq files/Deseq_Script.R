@@ -12,8 +12,8 @@ library(dplyr)
 library(ape)
 library(vegan)
 
-anemia_metadata <- read_delim("anemia_metadata.txt", delim="\t")
-tax <- read_delim("taxonomy.tsv", delim="\t")
+anemia_metadata <- read_delim("Files_from_Processing/DESeq files/anemia_metadata.txt", delim="\t")
+tax <- read_delim("Files_from_Processing/DESeq files/taxonomy.tsv", delim="\t")
 
 #only keep healthy infant samples
 filtered_meta_healthy <- filter(anemia_metadata, anemia == "normal", parasites == "N")
@@ -52,10 +52,10 @@ group_by(meta_6m_filt, crp_median)
 
 
 #load in metadata and taxonomy tsvs
-otu <- read_delim(file="table_250.tsv.txt", delim = "\t", skip=1)
-tax <- read_delim(file = "taxonomy.tsv", delim="\t")
+otu <- read_delim(file="Files_from_Processing/DESeq files/table_250.tsv", delim = "\t", skip=1)
+tax <- read_delim(file = "Files_from_Processing/DESeq files/taxonomy.tsv", delim="\t")
 meta <- read_delim("sorted_metadata_12m.txt", delim="\t")
-phylotree <- read.tree(file = "tree.nwk")
+phylotree <- read.tree(file = "Files_from_Processing/DESeq files/tree.nwk")
 
 #rename first column of metadata
 names(meta)[names(meta) == '#SampleID'] <- 'sampleid'
