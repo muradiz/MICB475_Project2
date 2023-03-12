@@ -172,6 +172,16 @@ save(infant_12m_final, file="infant_12m_final.RData")
 save(infant_12m_rare, file="infant_12m_rare.RData")
 
 
+##Alpha Diversity Plots
+plot_richness(infant_12m_rare)
+# select certain alpha diversity metrics
+
+plot_richness(infant_12m_rare, measures = c("Shannon","Chao1"))
+# Add ggplot layers if desired to adjust visuals
+plot_richness(infant_12m_rare, x = "crp_median", measures = c("Shannon","Chao1")) +
+  xlab("crp median") +
+  geom_boxplot()
+
 
 ##Beta Diversity Plots
 bc_dm <- distance(infant_12m_rare, method="bray")
