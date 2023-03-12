@@ -1,0 +1,253 @@
+Team 8 Lab Notebook
+MICB475
+Mari Aiko Job, Zee Muradi, Carly Pistawka, Janet Wu
+
+
+6 month olds or 12 months old for both datasets
+Male vs Female?
+Lifestyle characteristics between geographical populations (Peru vs. USA)
+Diet composition (BM, BM+solids, BM+liquids)
+
+
+Comparison of 6 months vs. 12 months across different populations (Infant vs Anemia)
+Changes from 6 month to 12 month (microbial diversity shift) -
+
+
+
+
+Previous paper in UJEMI: Exclusive breastfeeding may decrease overall diversity of the infant gut microbiome with a shift towards dominance of bacterial taxa associated with lactose metabolism 
+
+underweight/normal weight/over????
+
+
+Table of Contents:
+
+
+
+START
+TA Supervisor: Avril Metcalfe-Roach (avril.metcalfe-roach@msl.ubc.ca) 
+
+31/01/23  W4 TM - Week 4 Team Meeting
+
+Agenda
+1. Meet and get to know Professor and TA supervisor.
+2. Discuss what the expectations are for Project 2. 
+3. Talk about potential Project 2 topics.
+
+Potential Project 2 Research Questions
+
+Meeting Minutes
+Github for the code / lab notebook ? 
+Keep them in separate files
+Think of a research question and bring it to the next team meeting
+Only two team meetings left before we have to submit proposal
+Build on more complicated project 
+Cannot pool data together -- but can use 6m and 12m both in analysis but as different groups
+Combine 2+ datasets? Find metadata categories that overlap this may be cool to look at
+Anemia and infant feeding preferences may have overlap in categories
+Both have samples at 6month and 12m
+Both give info on diets - BM or ‘combined’ (BM and Liquids and/or solids
+Could have more subquestions
+
+
+
+Anemia paper link: https://pubmed.ncbi.nlm.nih.gov/30351381/
+
+For next meeting
+Decide on what platform to use for lab notebook
+Finalize topic and research question?
+CC Evelyn on email re: platform we decide on
+
+
+
+
+07/02/2023 W5 TM - Week 5 Team Meeting
+
+Agenda
+1. Let TA Supervisor know about decision to use GitHub as the platform for lab notebook.
+2. Discuss potential topics and research questions for Project 2. 
+
+Meeting Minutes
+GitHub for Desktop
+Two avenues -> lifestyle differences (Peru vs United States), comparing 6 and 12 months infants for both Peru and US (looking at differences and similarities between populations) 
+Make sure that datasets can be comparable, double check methodology that can affect microbiome
+Check supplementary materials 
+Adding a lot of questions in proposals is better
+We are thinking of moving away from diet since there is a UJEMI paper that used the “Eating Behavior in Infants” dataset
+Add another variable to our question → maybe female vs male?
+Flesh out ideas on what information we have right now
+Start on proposal as soon as possible
+Differential abundance testing - DESeq2 
+Can look at diversity metrics and generate table that compares study 1 vs study 2 (then 6 months vs 12 months + descriptions) 
+Piecrust2 - to annotate  
+Can check Nature papers to see how other authors explain their methodology?
+Controlling for variables - remove effects of other variables that will affect the ones you are studying (filtering them out?)
+
+Do we have methods and supplementary/anything for the feeding preference paper???
+Reach out to one or two of groups that have already published using dataset 
+Continue conversation with authors that we are in contact with
+May be a difficult study to work with since there is no publication
+If ends up being huge issue, we can just use the one dataset
+Ask evelyn how to find more information
+
+Inflammatory effects in the microbiome (anemia paper)
+Crp (c reactive protein) = inflammatory marker
+Look at stage of infection - how many samples do we have that we could use
+Check if any other categories are inflammation-related
+
+For next meeting
+Start proposal looking only at anemia dataset
+Check methodology we want to use
+Check formatting for paper
+Finalize research question as soon as possible
+Start on DESeq? 
+Work on the proposal as much as we can
+Process data via qiime2 
+Up to importing data to R
+Create OTU Table
+Look at the papers that use the infant dataset
+
+Have a rough draft of proposal, do qiime2 stuff, DESeq2 
+Doesn’t have to be perfect, just something to start with
+
+
+In future: we will need to create ‘table 1’
+collect all info and summarize it up
+number males and females, number 12m vs 6m
+ different variables that overlap
+ 
+14/02/2023 W6 TM - Week 6 Team Meeting
+
+Agenda:
+
+To talk about what has been done so far in terms of preparation for the project proposal.
+To discuss the research questions and experimental aims formulated by the team.
+To finalize our research topic and question for Project 2. 
+
+Meeting Minutes
+Update from author - BRINDA has 60 different datasets but none from Peru so we might be looking at data from US as well; uses 6 months and 12 months 
+Compare our data with BRINDA R-package ?
+Aim 5 is another project, either pick Aims 1 & 4 vs Aim 5
+First 4 aims are good for the proposal
+For controls: remove anemic and have parasites
+Check how many infants we will be left with, ensure you have a big enough sample size
+Normal samples = ~80; about 4 or 5 have parasites 
+But we have to separate 6 months vs 12 months because microbiome would be too different
+Look at spread of CRP and AGP, if they are too similar, it will be difficult to get a significant difference
+Filter data correctly (stratify → put samples into specific groups)
+WHO has definition of CRP in relation to inflammation; BRINDA has definition of AGP
+CRP is for short term; AGP is for long term 
+Do not overstratify
+Aim 2 - Specify methods we would like to use in determining microbiome composition (diversity metrics to compare everything)
+Taxonomic analysis
+Keep CRP and AGP as a continuous variable????
+Start with 4 bins
+Will need to separate normal from anemia, then 6 month from 12 month
+
+logical boutique analysis - continuous analysis 
+Under additional 
+Taxonomic indicators
+- Remove anemic infants
+- Focus on inflammation
+- Malawi dataset has OTUs 
+	- Shannon index plot 
+
+
+Use qiime for diversity just to check and generate all the graphs - see which ones we are interested in 
+Finish in R - vegan r package
+Taxonomic analysis - 
+	Taxa bar charts in qiime are ugly! Dont use
+Indicator taxa analysis - R
+	Ujemi dorms paper 2022 - look and see if they published script
+Zoom meeting on Thursday 11-12; send draft on Tuesday maybe?
+	
+Decide on 250 for trimming length? Or 300?
+Try 300 first!!
+What is lost after denoising?
+
+Week 7 - Team Meeting
+
+Agenda:
+Problems with indicator species method, everyone was getting different numbers of ASVs. This would be the method we might be using in our project.
+Ask about the feasibility portion of the proposal. 
+Discuss the team’s research proposal 
+
+Meeting Minutes:
+Indicator species analysis uses machine learning algorithm, there is a little bit of randomness involved in the results 
+Further filter results → only consider things that are above a certain cutoff
+Send followup email 
+DESeq2 → we can do set seed to avoid “randomness” problem 
+Discussing aim → Sex and age effects on microbiome
+Remove sex because it will be a bigger and more complicated 
+Feasibility 
+Cut samples in half if necessary because we might not have enough samples
+10 samples per category might be too low 
+Maybe consider combining CRP and AGP 
+Bins: for proposal → high/low for CRP/AGP
+Highlight the contention in the field → some studies are contradicting
+
+
+
+For next time:
+Discuss team proposal?
+
+
+
+Feb 28 - Team Meeting
+
+Agenda:
+Discuss next steps in data processing (?) re: experimental aims
+Discuss aim 3?
+
+
+
+Meeting Minutes: 
+Aim 3 was a bit difficult to finalize because it’s highly dependent on Aim 1 
+Moving to diversity metrics in analysis and differential abundance
+Split up code objectives - alpha diversity, beta, differential abundance? 
+Use a dummy variable then when the code is finalized, swap the actual variable we’ll be studying
+If we don’t have enough samples in the bins, we can use the median instead
+Better to just do CRP high/low - based on research or based on median
+Repeat using AGP (another aim if we decide to do it)
+Avoid question of how much is CRP vs AGP
+Excel sheet of metadata - number of samples using the 
+Maybe end up doing parasites as a comparison? - 7 infants with parasites at 12M
+
+For next week:
+R script for each of the code objectives (should be at least started to be written)
+Start by doing 12 month data 
+Alpha 
+Beta
+Differential Abundance
+Binning
+?
+Once create the code, can substitute with 6 months
+
+
+March 3 - Informal Team Meeting
+Agenda
+Discuss data processing
+Discuss crp threshold
+Assign tasks for RStudio
+
+Start using 12 month (health infant) data
+Will need to filter out rows with parasites?
+Remove rows with no crp value
+
+Analyze CRP and AGP separately
+
+
+Do we need to remove anemia samples prior to rarefaction? Or can this be done afterwords in R
+Determining depth for rarefaction?
+10 vs 15 samples minimum?
+
+
+Need to remove (anemic and not collected from anemia category
+
+AIKO - rarefacted, only healthy samples with anemia
+Carly -  Filtering and splitting into files/file manipulation
+Rarefy?
+Phyloseq objects
+
+
+

@@ -1,0 +1,246 @@
+## Team 8 - Project 2 
+
+#Importing data using a manifest file
+qiime tools import \
+--type "SampleData[SequencesWithQuality]" \
+--input-format SingleEndFastqManifestPhred33V2 \
+--input-path ./anemia_manifest.txt \
+--output-path ./demux_seqs.qza
+
+#Creating visualization of demultiplexed samples
+qiime demux summarize \
+--i-data ./demux_seqs.qza \
+--o-visualization ./demux_seqs.qzv
+
+##Copy this from server to local computer to visualize demux_seqs.qzv via scp
+
+#Determining ASVs with DADA2
+qiime dada2 denoise-single \
+--i-demultiplexed-seqs demux_seqs.qza \
+--p-trim-left 0 \
+--p-trunc-len 300 \
+--o-representative-sequences rep-seqs.qza \
+--o-table table.qza \
+--o-denoising-stats stats.qza
+  
+#Visualizing DADA2 stats
+qiime metadata tabulate \
+--m-input-file stats.qza \
+--o-visualization stats.qzv
+
+#Visualizing ASVs stats
+qiime feature-table summarize \
+--i-table table.qza \
+--o-visualization table.qzv \
+--m-sample-metadata-file anemia_metadata.txt
+  
+##Copy this from server to local computer to visualize table.qzv via scp
+
+qiime feature-table tabulate-seqs \
+--i-data rep-seqs.qza \
+--o-visualization rep-seqs.qzv
+
+### Retraining classifier
+#replace the ref-otus.qza with the correct classifier in the server 
+#replace primer sequences with your correct sequences
+#replace trunc-len with the one you defined in your denoising step
+
+### Did this while in /data/project_2 (as my working directory)
+qiime feature-classifier extract-reads \
+--i-sequences /mnt/datasets/classifiers/silva-138-99-nb-classifier.qza \
+--p-f-primer GTGCCAGCMGCCGCGGTAA \
+--p-r-primer GGACTACHVGGGTWTCTAAT \
+--p-trunc-len 300 \
+--o-reads ref-seqs.qza \
+
+### Did this while in /mnt/datasets/classifiers (as my working directory)
+qiime feature-classifier extract-reads \
+--i-sequences silva-138-99-nb-classifier.qza \
+--p-f-primer GTGCCAGCMGCCGCGGTAA \
+--p-r-primer GGACTACHVGGGTWTCTAAT \
+--p-trunc-len 300 \
+--o-reads /data/project_2/ref-seqs.qza \
+
+##Both have been showing the same error: Invalid value for '--i-sequences': Expected an artifact of at least
+  type FeatureData[Sequence]. An artifact of type TaxonomicClassifier was
+  provided.
+
+############# Data processing using 300 bp as cutoff is in ###Retraining the classifier file ################
+
+### Trimming to 250 bp instead of 300 bp
+#Made a separate directory named "trimmed-to-250-data", working directory /data/project_2
+
+mkdir trimmed-to-250-data
+
+##Trimming
+#Determining ASVs with DADA2
+qiime dada2 denoise-single \
+--i-demultiplexed-seqs demux_seqs.qza \
+--p-trim-left 0 \
+--p-trunc-len 250 \
+--o-representative-sequences /data/project_2/trimmed-to-250-data/rep-seqs_250.qza \
+--o-table /data/project_2/trimmed-to-250-data/table_250.qza \
+--o-denoising-stats /data/project_2/trimmed-to-250-data/stats_250.qza
+  
+##Moving to trimmed-to-250-data directory
+cd trimmed-to-250-data
+
+#Visualize DADA2 stats, working directory is /data/project_2/trimmed-to-250-data
+qiime metadata tabulate \
+--m-input-file stats_250.qza \
+--o-visualization stats_250.qzv
+
+#Visualizing ASVs stats
+qiime feature-table summarize \
+--i-table table_250.qza \
+--o-visualization table_250.qzv \
+--m-sample-metadata-file /data/project_2/anemia_metadata.txt
+
+qiime feature-table tabulate-seqs \
+--i-data rep-seqs_250.qza \
+--o-visualization rep-seqs_250.qzv
+
+qiime feature-classifier extract-reads \
+--i-sequences /data/project_2/training-feature-classifiers/silva-138-99-seqs.qza \
+--p-f-primer GTGCCAGCMGCCGCGGTAA \
+--p-r-primer GGACTACHVGGGTWTCTAAT \
+--p-trunc-len 250 \
+--o-reads ref-seqs_250.qza \
+
+qiime feature-classifier classify-sklearn \
+--i-classifier /mnt/datasets/classifiers/silva-138-99-nb-classifier.qza \
+--i-reads rep-seqs_250.qza \
+--o-classification taxonomy_trimmed_250.qza
+
+qiime metadata tabulate \
+--m-input-file taxonomy_trimmed_250.qza \
+--o-visualization taxonomy_trimmed_250.qzv
+  
+#Creating taxonomy barplots
+qiime taxa barplot \
+--i-table table_250.qza \
+--i-taxonomy taxonomy_trimmed_250.qza \
+--m-metadata-file /data/project_2/anemia_metadata.txt \
+--o-visualization taxa-bar-plots_trimmed_250.qzv
+
+#Taxonomy-based filtering
+qiime taxa filter-table \
+--i-table table_250.qza \
+--i-taxonomy taxonomy_trimmed_250.qza \
+--p-exclude mitochondria,chloroplast \
+--o-filtered-table table-no-mitochondria-no-chloroplast.qza
+
+qiime feature-table summarize \
+--i-table table-no-mitochondria-no-chloroplast.qza \
+--o-visualization table-no-mitochondria-no-chloroplast.qzv \
+--m-sample-metadata-file /data/project_2/anemia_metadata.txt 
+
+##Downloaded files into local computer via scp
+
+# Generate a tree for phylogenetic diversity analyses
+qiime phylogeny align-to-tree-mafft-fasttree \
+--i-sequences rep-seqs_250.qza \
+--o-alignment aligned-rep-seqs.qza \
+--o-masked-alignment masked-aligned-rep-seqs.qza \
+--o-tree unrooted-tree.qza \
+--o-rooted-tree rooted-tree.qza 
+
+##Downloaded files into local computer via scp
+
+# Alpha-rarefaction 
+#metadata category by age_months - if at least 10
+#sampling depth 38021: 14 6 months old, 10 1 year old
+#retain 912,504 (16.24%) features in 24 (12.44%) samples 
+
+qiime diversity alpha-rarefaction \
+--i-table table_250.qza \
+--i-phylogeny rooted-tree.qza \
+--p-max-depth 38021 \
+--m-metadata-file /data/project_2/anemia_metadata.txt \
+--o-visualization alpha-rarefaction_10samples.qzv
+
+# Alpha-rarefaction
+#age_months - if at least 15 in one age group
+#sampling depth 35328: 15 6 month old and 22 1 year old
+#retain 1,307,136 (23.26%) features in 37 (19.17%) samples
+qiime diversity alpha-rarefaction \
+--i-table table_250.qza \
+--i-phylogeny rooted-tree.qza \
+--p-max-depth 35328 \
+--m-metadata-file /data/project_2/anemia_metadata.txt \
+--o-visualization alpha-rarefaction_15samples.qzv
+
+
+#### Figured out metadata-based filtering step was missing
+
+#Metadata-based filtering
+### Choosing 6 and 12 month old with no anemia, no parasites
+qiime feature-table filter-samples \
+--i-table table_250.qza \
+--m-metadata-file /data/project_2/anemia_metadata.txt \
+--p-where "[anemia]='normal' AND [parasites]='N'" \
+--o-filtered-table 6_and_12_months_filtered-table.qza
+
+#Converting .qza to .qzv
+qiime feature-table summarize \
+--i-table 6_and_12_months_filtered-table.qza \
+--o-visualization 6_and_12_months_filtered-table.qzv \
+--m-sample-metadata-file /data/project_2/anemia_metadata.txt
+
+##Downloaded files into local computer via scp
+
+#Alpha rarefaction
+# Alpha-rarefaction
+#age_months - if at least 10 samples
+#sampling depth 34047: ten 6-month olds, eleven 12-month olds
+#Retained 714,987 (33.07%) features in 21 (27.63%) samples at the specifed sampling depth 
+
+qiime diversity alpha-rarefaction \
+--i-table table_250.qza \
+--i-phylogeny rooted-tree.qza \
+--p-max-depth 34047 \
+--m-metadata-file /data/project_2/anemia_metadata.txt \
+--o-visualization alpha-rarefaction_filtered.qzv
+
+##Downloaded files into local computer via scp
+
+#############Each alpha-rarefaction when viewed in qiime2 shows this message "The following metadata columns have been omitted because they didn't contain categorical data, or the column consisted only of missing values: age_months"
+
+
+####Alpha-rarefaction if at least 15 samples
+#sampling depth 29447: twenty-one 6 months, fifteen 12 months
+#Retained 1,060,092 (49.03%) features in 36 (47.37%) samples at the specifed sampling depth.
+
+qiime diversity alpha-rarefaction \
+--i-table table_250.qza \
+--i-phylogeny rooted-tree.qza \
+--p-max-depth 29447 \
+--m-metadata-file /data/project_2/anemia_metadata.txt \
+--o-visualization alpha-rarefaction_filtered_15samples.qzv
+
+##Downloaded files into local computer via scp
+
+##At this point, we decided to export the files and not do any rarefaction on Qiime2 as per TA Avril's advice
+
+###Exporting files
+#Exporting count table
+qiime tools export \
+--input-path table_250.qza \
+--output-path /data/project_2/trimmed-to-250-data/export
+
+#Converting the resulting .biom file to .tsv
+biom convert \
+-i feature-table.biom \
+-o table_250.tsv --to-tsv
+
+#Exporting taxonomy file to tsv file
+qiime tools export \
+--input-path taxonomy_trimmed_250.qza \
+--output-path /data/project_2/trimmed-to-250-data/export
+
+#Export rooted tree as nwk
+qiime tools export \
+--input-path rooted-tree.qza \
+--output-path /data/project_2/trimmed-to-250-data/export
+
+##Downloaded files into local computer via scp-r, organized files into subdirectories on GitHub Desktop
