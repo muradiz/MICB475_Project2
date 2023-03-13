@@ -67,9 +67,8 @@ tax_sep <- tax %>%
 
            
 #### Format OTU table ####
-
 # save everything except first column (OTU ID) into a matrix
-otu_mat <- as.matrix(otu[,-1])
+otu_mat <- otu_filt %>% column_to_rownames('#OTU ID') %>% as.matrix
 # Make first column (#OTU ID) the rownames of the new matrix
 rownames(otu_mat) <- otu$`#OTU ID`
 # Use the "otu_table" function to make an OTU table
