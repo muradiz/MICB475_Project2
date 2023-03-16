@@ -10,6 +10,7 @@ library(ape) # importing trees
 library(tidyverse)
 library(vegan)
 library(dplyr)
+library(indicspecies)
 
 anemia_metadata <- read_delim("anemia_metadata.txt", delim="\t")
 tax <- read_delim("taxonomy.tsv", delim="\t")
@@ -117,8 +118,6 @@ otu_table(agp_infant_6m)
 sample_data(agp_infant_6m)
 tax_table(agp_infant_6m)
 phy_tree(agp_infant_6m)
-
-library(indicspecies)
 
 #Setting random seed as 1 
 set.seed(1)
