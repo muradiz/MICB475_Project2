@@ -1,8 +1,16 @@
+#required files
+#anemia_metadata.txt
+#taxonomy.tsv
+#table_250.tsv
+#tree.nwk
+
+#loading packages 
 library(tidyverse)
 library(phyloseq)
 library(dplyr)
 library(ape)
 library(vegan)
+library(indicspecies)
 
 anemia_metadata <- read_delim("anemia_metadata.txt", delim="\t")
 tax <- read_delim("taxonomy.tsv", delim="\t")
@@ -113,7 +121,6 @@ infant_6m_crp <- phyloseq(OTU, SAMP_6m_crp, TAX, phylotree)
 #phy_tree(infant_12m)
 
 ### Indicator Species Analysis
-library(indicspecies)
 
 #Setting random seed as 1 
 set.seed(1)
