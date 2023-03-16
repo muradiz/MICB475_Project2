@@ -1,3 +1,9 @@
+#required files
+#anemia_metadata.txt
+#taxonomy.tsv
+#table_250.tsv
+#tree.nwk
+
 #load packages
 library(phyloseq)
 library(ape) # importing trees
