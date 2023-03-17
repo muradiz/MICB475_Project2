@@ -271,10 +271,10 @@ set.seed(1)
 #Need to filter anything????
 infant_6m_final
 
-#DESEq (No need to rarefaction [use infant_12m_final])
+#DESEq (No need to rarefaction [use infant_6m_final])
 #ERROR Message regarding genes having 0 reads.
 #Need to add '1' read count to all genes [LIMITATION]
-infant_6m_plus1 <- transform_sample_counts(infant_12m_final, function(x) x+1)
+infant_6m_plus1 <- transform_sample_counts(infant_6m_final, function(x) x+1)
 infant_6m_deseq <- phyloseq_to_deseq2(infant_6m_plus1, ~agp_clin)
 DESEQ_infant_6m <- DESeq(infant_6m_deseq)
 
