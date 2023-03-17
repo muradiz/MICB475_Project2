@@ -270,17 +270,17 @@ adonis2(dm_jaccard ~ agp_clin*agp, data=samp_dat_wdiv)
 set.seed(1)
 
 #Need to filter anything????
-infant_6m_final
+infant_12m_final
 
 #DESEq (No need to rarefaction [use infant_6m_final])
 #ERROR Message regarding genes having 0 reads.
 #Need to add '1' read count to all genes [LIMITATION]
-infant_6m_plus1 <- transform_sample_counts(infant_6m_final, function(x) x+1)
-infant_6m_deseq <- phyloseq_to_deseq2(infant_6m_plus1, ~crp_median)
-DESEQ_infant_6m <- DESeq(infant_6m_deseq)
+infant_12m_plus1 <- transform_sample_counts(infant_12m_final, function(x) x+1)
+infant_12m_deseq <- phyloseq_to_deseq2(infant_12m_plus1, ~agp_median)
+DESEQ_infant_12m <- DESeq(infant_12m_deseq)
 
 #Viewing Results
-res <- results(DESEQ_infant_6m, tidy=TRUE)
+res <- results(DESEQ_infant_12m, tidy=TRUE)
 View(res)
 
 #Filtering out the ASV results with N.A. values for p adjusted values
@@ -317,7 +317,7 @@ view(sigASVs)
 sigASVs_vec <- sigASVs |>
                 pull(ASV)
 
-infant_6m_DESeq <- prune_taxa(sigASVs_vec, infant_6m_final)
+infant_12m_DESeq <- prune_taxa(sigASVs_vec, infant_6m_final)
 
 sigASVs <- tax_table(infant_6m_DESeq) |>
             as.data.frame() |>
@@ -340,19 +340,19 @@ bar_plot
  
  ################### INDICATOR SPECIES ANALYSIS ################
  
- #Setting random seed as 1 
+#Setting random seed as 1 
 set.seed(1)
 
- #ISA CRP 6 months
-crp_genus_6m <- tax_glom(infant_6m_crp, "Genus", NArm= FALSE)
-crp_genus_RA_6m <- transform_sample_counts(crp_genus_6m, fun=function(x) x/sum(x))
+crp_genus_12m <- tax_glom(infant_12m_crp, "Genus", NArm= FALSE)
+crp_genus_RA_12m <- transform_sample_counts(crp_genus_12m, fun=function(x) x/sum(x))
 
-isa_crp_6m <- multipatt(t(otu_table(crp_genus_RA_6m)), cluster = sample_data(crp_genus_RA_6m)$crp_median)
-summary(isa_crp_6m)
-taxtable_6m_crp <- tax_table(infant_6m_crp) %>% as.data.frame() %>% rownames_to_column(var="ASV")
+#ISA CRP 12 months
+isa_crp_12m <- multipatt(t(otu_table(crp_genus_RA_12m)), cluster = sample_data(crp_genus_RA_12m)$crp_median)
+summary(isa_crp_12m)
+taxtable_12m_crp <- tax_table(infant_12m_crp) %>% as.data.frame() %>% rownames_to_column(var="ASV")
 
-isa_crp_6m$sign %>% rownames_to_column(var="ASV") %>%
-  left_join(taxtable_6m_crp) %>% filter(p.value<0.05) %>% View()
+isa_crp_12m$sign %>% rownames_to_column(var="ASV") %>%
+  left_join(taxtable_12m_crp) %>% filter(p.value<0.05) %>% View()
  
   
  
