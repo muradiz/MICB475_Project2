@@ -6,6 +6,7 @@ library(vegan)
 library(dplyr)
 library(ggplot2)
 library(ggforce)
+library(DESeq2)
 
 anemia_metadata <- read_delim("anemia_metadata.txt", delim="\t")
 tax <- read_delim("taxonomy.tsv", delim="\t")
