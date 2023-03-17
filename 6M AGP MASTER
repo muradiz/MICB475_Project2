@@ -17,7 +17,7 @@ filtered_meta_healthy_agp <- filtered_meta_healthy[!is.na(as.numeric(filtered_me
 
 #make metadata file for only 6 month infant samples
 meta_6m_agp <-  filter(filtered_meta_healthy_agp, age_months == 6)
-#make metadata file for only 12 month infant samples
+#make metadata file for only month infant samples
 meta_12m_agp <- filter(filtered_meta_healthy_agp, age_months == 12)
 
 ##create column based on clinical AGP value - 6m
@@ -316,9 +316,9 @@ view(sigASVs)
 sigASVs_vec <- sigASVs |>
                 pull(ASV)
 
-infant_12m_DESeq <- prune_taxa(sigASVs_vec, infant_12m_final)
+infant_6m_DESeq <- prune_taxa(sigASVs_vec, infant_6m_final)
 
-sigASVs <- tax_table(infant_12m_DESeq) |>
+sigASVs <- tax_table(infant_6m_DESeq) |>
             as.data.frame() |>
             rownames_to_column(var="ASV") |>
             right_join(sigASVs) |>
