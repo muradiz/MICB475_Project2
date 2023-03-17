@@ -326,7 +326,7 @@ view(sigASVs)
 sigASVs_vec <- sigASVs |>
                 pull(ASV)
 
-infant_12m_DESeq <- prune_taxa(sigASVs_vec, infant_6m_final)
+infant_6m_DESeq <- prune_taxa(sigASVs_vec, infant_6m_final)
 
 sigASVs <- tax_table(infant_6m_DESeq) |>
             as.data.frame() |>
