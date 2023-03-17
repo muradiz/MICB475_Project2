@@ -115,7 +115,7 @@ phy_tree(infant_6m)
 
 # If we look at sample variables and decide we only want some variables, we can view them like so:
 sample_variables(infant_6m)
-# colnames(sample_data(infant_12m))
+# colnames(sample_data(infant_6m))
 get_variable(infant_6m, c("crp", "crp_status")) # equivalent to "select" in tidyverse
 
 ## Let's say we want to filter OTU table by sample. 
