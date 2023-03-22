@@ -51,7 +51,7 @@ group_by(meta_6m_filt, crp_median)
 
 
 #load in metadata and taxonomy tsvs
-otu <- read_delim(file="table_250.tsv.txt", delim = "\t", skip=1)
+otu <- read_delim(file="table_250.tsv", delim = "\t", skip=1)
 tax <- read_delim(file = "taxonomy.tsv", delim="\t")
 meta <- read_delim("sorted_metadata_12m.txt", delim="\t")
 phylotree <- read.tree(file = "tree.nwk")
