@@ -153,11 +153,12 @@ get_sample(infant_12m, gettaxa)
 infant_12m_filt <- subset_taxa(infant_12m,  Domain == "d__Bacteria" & Class!="c__Chloroplast" & Family !="f__Mitochondria")
 # Remove ASVs that have less than 5 counts total
 infant_12m_filt_nolow <- filter_taxa(infant_12m_filt, function(x) sum(x)>5, prune = TRUE)
+# Genus Level
+infant_12m_genus <- tax_glom (infant_12m_filt_nolow, "Genus")
 # Remove samples with less than 100 reads
-infant_12m_filt_nolow_samps <- prune_samples(sample_sums(infant_12m_filt_nolow)>100, infant_12m_filt_nolow)
+infant_12m_filt_nolow_samps <- prune_samples(sample_sums(infant_12m_genus)>100, infant_12m_genus)
 # Remove samples where ph is na
 infant_12m_final <- subset_samples(infant_12m_filt_nolow_samps, !is.na(crp) )
-
 
 ####DESEq ANALYSIS#### 
 
@@ -229,7 +230,7 @@ sigASVs <- tax_table(infant_12m_DESeq) |>
             mutate(Genus = make.unique(Genus)) |>
             mutate(Genus = factor(Genus, levels= unique(Genus)))|>
             drop_na(Genus) |>
-            filter(Genus != "NA.2" & Genus != "NA.1")
+            filter(Genus != "NA.2" & Genus != "NA.1") 
 
 view(sigASVs)
 
