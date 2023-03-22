@@ -1,6 +1,6 @@
 #load packages
 library(phyloseq)
-library(ape) # importing trees
+library(ape) 
 library(tidyverse)
 library(vegan)
 library(dplyr)
