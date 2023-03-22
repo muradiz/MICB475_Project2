@@ -1,9 +1,12 @@
 #load packages
 library(phyloseq)
-library(ape) # importing trees
+library(ape) 
 library(tidyverse)
 library(vegan)
 library(dplyr)
+library(ggplot2)
+library(ggforce)
+
 
 anemia_metadata <- read_delim("anemia_metadata.txt", delim="\t")
 tax <- read_delim("taxonomy.tsv", delim="\t")
@@ -98,12 +101,6 @@ sample_data(agp_infant_12m)
 tax_table(agp_infant_12m)
 phy_tree(agp_infant_12m)
 
-library(vegan)
-library(phyloseq)
-library(tidyverse)
-
-
-
 
 #### Accessor functions ####
 # These functions allow you to see or summarise data
@@ -169,7 +166,7 @@ plot_richness(agp_infant_12m_rare, x = "agp_clin", measures = c("Shannon","Chao1
   geom_boxplot()
 
 ##Beta Diversity Plots
-bc_dm <- distance(agp_infant_12m_rare, method="bray")
+bc_dm <- phyloseq::distance(agp_infant_12m_rare, method="bray")
 pcoa_bc <- ordinate(agp_infant_12m_rare, method="PCoA", distance=bc_dm)
 
 plot_ordination(agp_infant_12m_rare, pcoa_bc, color = "agp", shape="agp_clin") +
@@ -254,14 +251,14 @@ samp_dat_wdiv <- data.frame(sample_data(agp_infant_12m_rare), estimate_richness(
 ?UniFrac
 dm_unifrac <- UniFrac(agp_infant_12m_rare, weighted=TRUE)
 ?adonis2
-adonis2(dm_unifrac ~ agp_clin*agp, data=samp_dat_wdiv)
+adonis2(dm_unifrac ~ agp_clin, data=samp_dat_wdiv)
 
 # Also use other metrics: for example, the vegan package includes bray and jaccard
 dm_bray <- vegdist(t(otu_table(agp_infant_12m_rare)), method="bray")
-adonis2(dm_bray ~ agp_clin*agp, data=samp_dat_wdiv)
+adonis2(dm_bray ~ agp_clin, data=samp_dat_wdiv)
 
 dm_jaccard <- vegdist(t(otu_table(agp_infant_12m_rare)), method="jaccard")
-adonis2(dm_jaccard ~ agp_clin*agp, data=samp_dat_wdiv)
+adonis2(dm_jaccard ~ agp_clin, data=samp_dat_wdiv)
  
  ################# DESEQ ANALYSIS #######################
  
