@@ -115,9 +115,6 @@ sample_data(infant_12m)
 tax_table(infant_12m)
 phy_tree(infant_12m)
 
-library(vegan)
-library(phyloseq)
-library(tidyverse)
 
 #### Accessor functions ####
 # These functions allow you to see or summarise data
