@@ -214,30 +214,30 @@ hist(log(allCounts))
 
 #remove 0 values
 samp_dat_wdiv %>%
-  filter(!is.na(agp)) %>%
-  ggplot(aes(x=agp_clin, y=agp))+
+  filter(!is.na(Shannon)) %>%
+  ggplot(aes(x=agp_clin, y=Shannon))+
   geom_point() 
 
 #check distribution:
 ggplot(samp_dat_wdiv) +
-  geom_histogram(aes(x=agp), bins=25)
+  geom_histogram(aes(x=Shannon), bins=25)
 
 #logging everything to deal with non-parametric distribution
 # (1) Transform your data (usually with a log function)
 ggplot(samp_dat_wdiv) +
-  geom_histogram(aes(x=log(agp)), bins=25)
-t.test(log(agp) ~ agp_clin, data=samp_dat_wdiv)
+  geom_histogram(aes(x=log(Shannon)), bins=25)
+t.test(log(Shannon) ~ agp_clin, data=samp_dat_wdiv)
 # Let's see what transformed data looks like:
 samp_dat_wdiv %>%
-  filter(!is.na(agp)) %>%
-  ggplot(aes(x=agp_clin, y=log(agp)))+
+  filter(!is.na(Shannon)) %>%
+  ggplot(aes(x=agp_clin, y=log(Shannon)))+
   geom_boxplot() +
   geom_jitter()
 
 
 #Wilcoxon Rank Sum Test
-wilcox.test(agp ~ agp_clin, data=samp_dat_wdiv)
-wilcox.test(log(agp) ~ agp_clin, data=samp_dat_wdiv)
+wilcox.test(Shannon ~ agp_clin, data=samp_dat_wdiv)
+wilcox.test(log(Shannon) ~ agp_clin, data=samp_dat_wdiv)
 
 #PERMANOVA Analysis
 ##load data
