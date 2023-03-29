@@ -68,7 +68,7 @@ otu_filt <- otu %>% select("#OTU ID", one_of(meta$sampleid))
 tax_sep <- tax %>%
   separate(col=Taxon, sep=";", into = c("Kingdom", "Phylum","Class","Order","Family","Genus","Species"))
 
-           
+
 #### Format OTU table ####
 # save everything except first column (OTU ID) into a matrix
 otu_mat <- otu_filt %>% column_to_rownames('#OTU ID') %>% as.matrix
@@ -200,7 +200,7 @@ plot_bar(infant_12m_RA, fill="Phylum")
 infant_12m_phylum <- tax_glom(infant_12m_RA, taxrank = "Phylum", NArm=FALSE)
 plot_bar(infant_12m_phylum, fill="Phylum") +
   facet_wrap(.~crp_median, scales = "free_x")
-  
+
 
 ########## STATISTICAL ANALYSIS ##############
 
@@ -235,30 +235,30 @@ hist(log(allCounts))
 
 #remove 0 values
 samp_dat_wdiv %>%
-  filter(!is.na(crp)) %>%
-  ggplot(aes(x=crp_median, y=crp))+
+  filter(!is.na(Shannon)) %>%
+  ggplot(aes(x=crp_median, y=Shannon))+
   geom_point() 
 
 #check distribution:
 ggplot(samp_dat_wdiv) +
-  geom_histogram(aes(x=crp), bins=25)
+  geom_histogram(aes(x=Shannon), bins=25)
 
 #logging everything to deal with non-parametric distribution
 # (1) Transform your data (usually with a log function)
 ggplot(samp_dat_wdiv) +
-  geom_histogram(aes(x=log(crp)), bins=25)
-t.test(log(crp) ~ crp_median, data=samp_dat_wdiv)
+  geom_histogram(aes(x=log(Shannon)), bins=25)
+t.test(log(Shannon) ~ crp_median, data=samp_dat_wdiv)
 # Let's see what transformed data looks like:
 samp_dat_wdiv %>%
   filter(!is.na(crp)) %>%
-  ggplot(aes(x=crp_median, y=log(crp)))+
+  ggplot(aes(x=crp_median, y=log(Shannon)))+
   geom_boxplot() +
   geom_jitter()
 
 
 #Wilcoxon Rank Sum Test
-wilcox.test(crp ~ crp_median, data=samp_dat_wdiv)
-wilcox.test(log(crp) ~ crp_median, data=samp_dat_wdiv)
+wilcox.test(Shannon ~ crp_median, data=samp_dat_wdiv)
+wilcox.test(log(Shannon) ~ crp_median, data=samp_dat_wdiv)
 
 
 #PERMANOVA Analysis
@@ -313,11 +313,11 @@ view(filtered_res)
 
 ##Volcano Plot##
 vol_plot <- ggplot(filtered_res, aes(x=log2FoldChange, y=-log(padj))) +
-            geom_point()
+  geom_point()
 vol_plot_sig <- filtered_res |>
-            mutate(significant = padj<0.05 & abs(log2FoldChange) >2) |>
-            ggplot(aes(x=log2FoldChange, y=-log10(padj), col= significant)) +
-            geom_point()
+  mutate(significant = padj<0.05 & abs(log2FoldChange) >2) |>
+  ggplot(aes(x=log2FoldChange, y=-log10(padj), col= significant)) +
+  geom_point()
 
 vol_plot            
 vol_plot_sig
@@ -335,26 +335,26 @@ view(sigASVs)
 #removed any Genus that has NA
 
 sigASVs_vec <- sigASVs |>
-                pull(ASV)
+  pull(ASV)
 
 infant_12m_DESeq <- prune_taxa(sigASVs_vec, infant_12m_final)
 
 sigASVs <- tax_table(infant_12m_DESeq) |>
-            as.data.frame() |>
-            rownames_to_column(var="ASV") |>
-            right_join(sigASVs) |>
-            arrange(log2FoldChange) |>
-            mutate(Genus = make.unique(Genus)) |>
-            mutate(Genus = factor(Genus, levels= unique(Genus)))|>
-            drop_na(Genus) |>
-            filter(Genus != "NA.2" & Genus != "NA.1")
+  as.data.frame() |>
+  rownames_to_column(var="ASV") |>
+  right_join(sigASVs) |>
+  arrange(log2FoldChange) |>
+  mutate(Genus = make.unique(Genus)) |>
+  mutate(Genus = factor(Genus, levels= unique(Genus)))|>
+  drop_na(Genus) |>
+  filter(Genus != "NA.2" & Genus != "NA.1")
 
 view(sigASVs)
 
 bar_plot <- ggplot(sigASVs) +
-            geom_bar(aes(x=Genus, y=log2FoldChange), stat ="identity") +
-            geom_errorbar(aes(x=Genus, ymin=log2FoldChange-lfcSE, ymax=log2FoldChange+lfcSE)) +
-            theme(axis.text.x = element_text(angle=90, hjust=1, vjust=0.5))
+  geom_bar(aes(x=Genus, y=log2FoldChange), stat ="identity") +
+  geom_errorbar(aes(x=Genus, ymin=log2FoldChange-lfcSE, ymax=log2FoldChange+lfcSE)) +
+  theme(axis.text.x = element_text(angle=90, hjust=1, vjust=0.5))
 bar_plot
 
 
@@ -376,5 +376,3 @@ taxtable_12m_crp <- tax_table(infant_12m_crp) %>% as.data.frame() %>% rownames_t
 
 isa_crp_12m$sign %>% rownames_to_column(var="ASV") %>%
   left_join(taxtable_12m_crp) %>% filter(p.value<0.05) %>% View()
-
-
