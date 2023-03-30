@@ -284,29 +284,29 @@ hist(log(allCounts_6m))
 
 #remove 0 values
 samp_dat_wdiv_6m %>%
-  filter(!is.na(agp)) %>%
-  ggplot(aes(x=agp_clin, y=agp))+
+  filter(!is.na(Shannon)) %>%
+  ggplot(aes(x=agp_clin, y=Shannon))+
   geom_point() 
 
 #check distribution:
 ggplot(samp_dat_wdiv_6m) +
-  geom_histogram(aes(x=agp), bins=25)
+  geom_histogram(aes(x=Shannon), bins=25)
 
 #logging everything to deal with non-parametric distribution
 # (1) Transform your data (usually with a log function)
 ggplot(samp_dat_wdiv_6m) +
-  geom_histogram(aes(x=log(agp)), bins=25)
-t.test(log(agp) ~ agp_clin, data=samp_dat_wdiv_6m)
+  geom_histogram(aes(x=log(Shannon)), bins=25)
+t.test(log(Shannon) ~ agp_clin, data=samp_dat_wdiv_6m)
 # Let's see what transformed data looks like:
 samp_dat_wdiv_6m %>%
-  filter(!is.na(agp)) %>%
-  ggplot(aes(x=agp_clin, y=log(agp)))+
+  filter(!is.na(Shannon)) %>%
+  ggplot(aes(x=agp_clin, y=log(Shannon)))+
   geom_boxplot() +
   geom_jitter()
 
 #Wilcoxon Rank Sum Test
-wilcox.test(agp ~ agp_clin, data=samp_dat_wdiv_6m)
-wilcox.test(log(agp) ~ agp_clin, data=samp_dat_wdiv_6m)
+wilcox.test(Shannon ~ agp_clin, data=samp_dat_wdiv_6m)
+wilcox.test(log(Shannon) ~ agp_clin, data=samp_dat_wdiv_6m)
 
 #PERMANOVA Analysis
 ##load data
@@ -359,29 +359,29 @@ hist(log(allCounts_12m))
 
 #remove 0 values
 samp_dat_wdiv_12m %>%
-  filter(!is.na(agp)) %>%
-  ggplot(aes(x=agp_clin, y=agp))+
+  filter(!is.na(Shannon)) %>%
+  ggplot(aes(x=agp_clin, y=Shannon))+
   geom_point() 
 
 #check distribution:
 ggplot(samp_dat_wdiv_12m) +
-  geom_histogram(aes(x=agp), bins=25)
+  geom_histogram(aes(x=Shannon), bins=25)
 
 #logging everything to deal with non-parametric distribution
 # (1) Transform your data (usually with a log function)
 ggplot(samp_dat_wdiv_12m) +
-  geom_histogram(aes(x=log(agp)), bins=25)
-t.test(log(agp) ~ agp_clin, data=samp_dat_wdiv_12m)
+  geom_histogram(aes(x=log(Shannon)), bins=25)
+t.test(log(Shannon) ~ agp_clin, data=samp_dat_wdiv_12m)
 # Let's see what transformed data looks like:
 samp_dat_wdiv_12m %>%
-  filter(!is.na(agp)) %>%
-  ggplot(aes(x=agp_clin, y=log(agp)))+
+  filter(!is.na(Shannon)) %>%
+  ggplot(aes(x=agp_clin, y=log(Shannon)))+
   geom_boxplot() +
   geom_jitter()
 
 #Wilcoxon Rank Sum Test
-wilcox.test(agp ~ agp_clin, data=samp_dat_wdiv_12m)
-wilcox.test(log(agp) ~ agp_clin, data=samp_dat_wdiv_12m)
+wilcox.test(Shannon ~ agp_clin, data=samp_dat_wdiv_12m)
+wilcox.test(log(Shannon) ~ agp_clin, data=samp_dat_wdiv_12m)
 
 #PERMANOVA Analysis
 ##load data
