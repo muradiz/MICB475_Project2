@@ -1,0 +1,228 @@
+#load packages
+library(phyloseq)
+library(ape) # importing trees
+library(tidyverse)
+library(vegan)
+library(dplyr)
+library(ggplot2)
+library(ggforce)
+library(DESeq2)
+library(indicspecies)
+
+anemia_metadata <- read_delim("anemia_metadata.txt", delim="\t")
+tax <- read_delim("taxonomy.tsv", delim="\t")
+
+#only keep healthy infant samples
+filtered_meta_healthy <- filter(anemia_metadata, anemia == "normal", parasites == "N")
+# filter out samples with no agp value
+filtered_meta_healthy_agp <- filtered_meta_healthy[!is.na(as.numeric(filtered_meta_healthy$agp)),]
+
+#make metadata file for only 6 month infant samples
+meta_6m_agp <-  filter(filtered_meta_healthy_agp, age_months == 6)
+#make metadata file for only month infant samples
+meta_12m_agp <- filter(filtered_meta_healthy_agp, age_months == 12)
+
+##create column based on clinical AGP value - 6m
+meta_6m_agp$agp_clin <- ifelse(meta_6m_agp$agp >= 1,"Above", "Below")
+#create column based on clinical AGP value - 12m
+meta_12m_agp$agp_clin <- ifelse(meta_12m_agp$agp >= 1,"Above", "Below")
+
+# Select columns
+meta_6m_filt_agp <- select(meta_6m_agp, "#SampleID", "host_subject_id", "sex", "agp", "agp_status", "agp_clin", "infection_status")
+meta_12m_filt_agp <- select(meta_12m_agp, "#SampleID", "host_subject_id", "sex", "agp", "agp_status", "agp_clin", "infection_status")
+
+#save files
+save(meta_6m_filt_agp, file = "agp_sorted_metadata_6m.RData")
+save(meta_12m_filt_agp, file = "agp_sorted_metadata_12m.RData")
+
+# Save as txt files - NOT WORKING
+write.table(meta_12m_filt_agp, file = "agp_sorted_metadata_12m.txt", sep="\t", quote=FALSE, row.names=FALSE)
+write.table(meta_6m_filt_agp, file = "agp_sorted_metadata_6m.txt", sep="\t", quote=FALSE, row.names=FALSE)
+
+
+#load in metadata and taxonomy tsvs
+otu <- read_delim(file="table_250.tsv.txt", delim = "\t", skip=1)
+tax <- read_delim(file = "taxonomy.tsv", delim="\t")
+meta_6m <- read_delim("agp_sorted_metadata_6m.txt", delim="\t")
+meta_12m <- read_delim("agp_sorted_metadata_12m.txt", delim="\t")
+phylotree <- read.tree(file = "tree.nwk")
+
+#rename first column of metadata
+names(meta_6m)[names(meta_6m) == '#SampleID'] <- 'sampleid'
+names(meta_12m)[names(meta_12m) == '#SampleID'] <- 'sampleid'
+
+#filtering otu and tax files
+otu_filt_6m <- otu %>% select("#OTU ID", one_of(meta_6m$sampleid))
+otu_filt_12m <- otu %>% select("#OTU ID", one_of(meta_12m$sampleid))
+
+tax_sep <- tax %>%
+  separate(col=Taxon, sep=";", into = c("Kingdom", "Phylum","Class","Order","Family","Genus","Species"))
+
+
+#### Format OTU table ####
+
+# save everything except first column (OTU ID) into a matrix
+otu_mat <- as.matrix(otu[,-1])
+# Make first column (#OTU ID) the rownames of the new matrix
+rownames(otu_mat) <- otu$`#OTU ID`
+# Use the "otu_table" function to make an OTU table
+OTU <- otu_table(otu_mat, taxa_are_rows = TRUE) 
+class(OTU)
+
+#### Format sample metadata ####
+# Save everything except sampleid as new data frame
+samp_df_6m <- as.data.frame(meta_6m[,-1])
+samp_df_12m <- as.data.frame(meta_12m[,-1])
+
+# Make sampleids the rownames
+rownames(samp_df_6m)<- meta_6m$sampleid
+rownames(samp_df_12m) <- meta_12m$sampleid
+
+# Make phyloseq sample data with sample_data() function
+SAMP_6m <- sample_data(samp_df_6m)
+SAMP_12m <- sample_data(samp_df_12m)
+class(SAMP_6m)
+class(SAMP_12m)
+
+#### Formatting taxonomy ####
+# Convert taxon strings to a table with separate taxa rank columns
+tax_mat <- tax %>% select(-Confidence) %>%
+  separate(col=Taxon, sep="; "
+           , into = c("Domain","Phylum","Class","Order","Family","Genus","Species")) %>%
+  as.matrix() # Saving as a matrix
+# Save everything except feature IDs 
+tax_mat <- tax_mat[,-1]
+# Make sampleids the rownames
+rownames(tax_mat) <- tax$"Feature ID"
+# Make taxa table
+TAX <- tax_table(tax_mat)
+class(TAX)
+
+class(phylotree)
+
+#### Create phyloseq object ####
+# Merge all into a phyloseq object
+agp_infant_6m <- phyloseq(OTU, SAMP_6m, TAX, phylotree)
+agp_infant_12m <- phyloseq(OTU, SAMP_12m, TAX, phylotree)
+
+otu_table(agp_infant_6m)
+sample_data(agp_infant_6m)
+tax_table(agp_infant_6m)
+phy_tree(agp_infant_6m)
+
+otu_table(agp_infant_12m)
+sample_data(agp_infant_12m)
+tax_table(agp_infant_12m)
+phy_tree(agp_infant_12m)
+
+#### Accessor functions ####
+# These functions allow you to see or summarise data
+
+# If we look at sample variables and decide we only want some variables, we can view them like so:
+sample_variables(agp_infant_6m)
+sample_variables(agp_infant_12m)
+# colnames(sample_data(infant_6m))
+get_variable(agp_infant_6m, c("agp", "agp_status")) # equivalent to "select" in tidyverse
+get_variable(agp_infant_12m, c("agp", "agp_status"))
+## Let's say we want to filter OTU table by sample. 
+# What is the sum of reads in each sample?
+sample_sums(agp_infant_6m)
+sample_sums(agp_infant_12m)
+# Save the sample names of the 3 samples with the most reads
+getsamps_6m <- names(sort(sample_sums(agp_infant_6m), decreasing = TRUE)[1:3])
+getsamps_12m <- names(sort(sample_sums(agp_infant_12m), decreasing = TRUE)[1:3])
+
+# filter to see taxa abundances for each sample
+get_taxa(agp_infant_6m, getsamps_6m) 
+get_taxa(agp_infant_12m, getsamps_12m)
+
+## Conversely, let's say we want to compare OTU abundance of most abundant OTU across samples
+# Look at taxa names
+taxa_names(agp_infant_6m)
+taxa_names(agp_infant_12m)
+
+# How many taxa do we have?
+ntaxa(agp_infant_6m)
+ntaxa(agp_infant_12m)
+
+# What is the total read count for each taxa?
+taxa_sums(agp_infant_6m)
+taxa_sums(agp_infant_12m)
+
+# Let's find the top 3 most abundant taxa
+gettaxa_6m <- names(sort(taxa_sums(agp_infant_6m), decreasing = TRUE)[1:3] )
+get_sample(agp_infant_6m, gettaxa_6m)
+
+gettaxa_12m <- names(sort(taxa_sums(agp_infant_6m), decreasing = TRUE)[1:3] )
+get_sample(agp_infant_12m, gettaxa_12m)
+######### ANALYZE ##########
+# Remove non-bacterial sequences, if any
+agp_infant_6m_filt <- subset_taxa(agp_infant_6m,  Domain == "d__Bacteria" & Class!="c__Chloroplast" & Family !="f__Mitochondria")
+agp_infant_12m_filt <- subset_taxa(agp_infant_12m,  Domain == "d__Bacteria" & Class!="c__Chloroplast" & Family !="f__Mitochondria")
+
+# Remove ASVs that have less than 5 counts total
+agp_infant_6m_filt_nolow <- filter_taxa(agp_infant_6m_filt, function(x) sum(x)>5, prune = TRUE)
+agp_infant_12m_filt_nolow <- filter_taxa(agp_infant_12m_filt, function(x) sum(x)>5, prune = TRUE)
+
+# Genus Level
+agp_infant_6m_genus <- tax_glom(agp_infant_6m_filt_nolow, "Genus")
+agp_infant_12m_genus <- tax_glom(agp_infant_12m_filt_nolow, "Genus")
+
+# Remove samples with less than 100 reads
+agp_infant_6m_filt_nolow_samps <- prune_samples(sample_sums(agp_infant_6m_genus)>100, agp_infant_6m_filt_nolow)
+agp_infant_12m_filt_nolow_samps <- prune_samples(sample_sums(agp_infant_12m_genus)>100, agp_infant_12m_filt_nolow)
+
+# Remove samples where agp is na
+agp_infant_6m_final <- subset_samples(agp_infant_6m_filt_nolow_samps, !is.na(agp) )
+agp_infant_12m_final <- subset_samples(agp_infant_12m_filt_nolow_samps, !is.na(agp) )
+
+# Rarefy samples #########
+# rngseed sets a random number. If you want to reproduce this exact analysis, you need
+# to set rngseed the same number each time
+#6 months
+rarecurve(t(as.data.frame(otu_table(agp_infant_6m_final))), cex=0.1)
+agp_infant_6m_rare <- rarefy_even_depth(agp_infant_6m_final, rngseed = 1, sample.size = 15000)
+
+agp_infant_6m_rare
+
+#12 months
+rarecurve(t(as.data.frame(otu_table(agp_infant_12m_final))), cex=0.1)
+agp_infant_12m_rare <- rarefy_even_depth(agp_infant_12m_final, rngseed = 1, sample.size = 15000)
+
+agp_infant_12m_rare
+
+##### Saving #####
+#6 months
+save(agp_infant_6m_final, file="agp_infant_6m_final.RData")
+save(agp_infant_6m_rare, file="agp_infant_6m_rare.RData")
+
+#12 months
+save(agp_infant_12m_final, file="agp_infant_12m_final.RData")
+save(agp_infant_12m_rare, file="agp_infant_12m_rare.RData")
+
+
+
+
+####PREPARING FOR RELATIVE ABUNDANCE###################
+
+library(BiocManager)
+BiocManager::install("microbiome", force = TRUE)
+
+library(microbiome)
+
+install.packages("ggpubr")
+library(ggpubr)
+
+#12 MONTHS
+agp_12m.compositional <- microbiome::transform(agp_infant_12m_final)
+agp_12m_aggregate <- aggregate_rare(agp_infant_12m_final, level = "Genus", detection = 1/100, prevalence = 50/100)
+
+agp_12m_psmelt <- psmelt(agp_12m.compositional)
+
+nrows(agp_12m_psmelt)
+ncol(agp_12m_psmelt)
+colnames(agp_12m_psmelt)
+view(agp_12m_psmelt)
+
+agp_12m_psmelt %>% ggplot(aes(Genus,Abundance,fill=group)) + geom_boxplot() + ggpubr::stat_compare_means(aes(group= agp_clin),label='p.signif',size=5)
+
