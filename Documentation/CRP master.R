@@ -4,7 +4,6 @@
 # taxonomy.tsv
 # table_250.tsv.txt
 
-
 library(tidyverse)
 library(phyloseq)
 library(dplyr)
@@ -187,13 +186,10 @@ crp_infant_12m_filt <- subset_taxa(crp_infant_12m,  Domain == "d__Bacteria" & Cl
 crp_infant_6m_filt_nolow <- filter_taxa(crp_infant_6m_filt, function(x) sum(x)>5, prune = TRUE)
 crp_infant_12m_filt_nolow <- filter_taxa(crp_infant_12m_filt, function(x) sum(x)>5, prune = TRUE)
 
-# Genus Level
-crp_infant_6m_genus <- tax_glom(crp_infant_6m_filt_nolow, "Genus")
-crp_infant_12m_genus <- tax_glom(crp_infant_12m_filt_nolow, "Genus")
 
 # Remove samples with less than 100 reads
-crp_infant_6m_filt_nolow_samps <- prune_samples(sample_sums(crp_infant_6m_genus)>100, crp_infant_6m_genus)
-crp_infant_12m_filt_nolow_samps <- prune_samples(sample_sums(crp_infant_12m_genus)>100, crp_infant_12m_genus)
+crp_infant_6m_filt_nolow_samps <- prune_samples(sample_sums(crp_infant_6m_filt_nolow)>100, crp_infant_6m_filt_nolow)
+crp_infant_12m_filt_nolow_samps <- prune_samples(sample_sums(crp_infant_12m_filt_nolow)>100, crp_infant_12m_filt_nolow)
 
 # Remove samples where ph is na
 crp_infant_6m_final <- subset_samples(crp_infant_6m_filt_nolow_samps, !is.na(crp))
@@ -218,7 +214,6 @@ save(crp_infant_6m_rare, file="crp_infant_6m_rare.RData")
 
 save(crp_infant_12m_final, file="crp_infant_12m_final.RData")
 save(crp_infant_12m_rare, file="crp_infant_12m_rare.RData")
-
 
 
 ###### DIVERSITY ###########
@@ -439,13 +434,25 @@ adonis2(dm_jaccard_12m ~ crp_median, data=samp_dat_wdiv_12m)
 #setting random seed 
 set.seed(1)
 
-#Need to filter anything????
-crp_infant_6m_final
+#Filtering Genus-level, no need to rarefy
 
-#DESEq (No need to rarefaction [use infant_12m_final])
+# Genus Level
+crp_infant_6m_genus <- tax_glom(crp_infant_6m_filt_nolow, "Genus")
+crp_infant_12m_genus <- tax_glom(crp_infant_12m_filt_nolow, "Genus")
+
+# Remove samples with less than 100 reads
+crp_infant_6m_filt_nolow_samps_DESeq <- prune_samples(sample_sums(crp_infant_6m_genus)>100, crp_infant_6m_genus)
+crp_infant_12m_filt_nolow_samps_DESeq <- prune_samples(sample_sums(crp_infant_12m_genus)>100, crp_infant_12m_genus)
+
+# Remove samples where crp is na
+crp_infant_6m_final_DESeq <- subset_samples(crp_infant_6m_filt_nolow_samps_DESeq, !is.na(crp))
+crp_infant_12m_final_DESeq <- subset_samples(crp_infant_12m_filt_nolow_samps_DESeq, !is.na(crp))
+
+
+#DESEq (No need to rarefaction [use crp_infant_6m_final_DESeq])
 #ERROR Message regarding genes having 0 reads.
 #Need to add '1' read count to all genes [LIMITATION]
-crp_infant_6m_plus1 <- transform_sample_counts(crp_infant_6m_final, function(x) x+1)
+crp_infant_6m_plus1 <- transform_sample_counts(crp_infant_6m_final_DESeq, function(x) x+1)
 crp_infant_6m_deseq <- phyloseq_to_deseq2(crp_infant_6m_plus1, ~crp_median)
 crp_DESEQ_infant_6m <- DESeq(crp_infant_6m_deseq)
 
@@ -477,7 +484,7 @@ crp_sigASVs_6m <- filtered_res_6m |>
   filter(padj <0.05 & abs(log2FoldChange)>2) |>
   dplyr::rename(ASV=row)
 
-save(crp_sigASVs_6m, file= "Files_from_Processing/DESeq files/DESEq_sigASVs_crp_6m")
+save(crp_sigASVs_6m, file= "Files_from_Processing/DESeq files/DESEq_sigASVs_crp_6m_final")
 
 view(crp_sigASVs_6m)
 
@@ -487,7 +494,7 @@ view(crp_sigASVs_6m)
 sigASVs_vec_6m <- crp_sigASVs_6m |>
   pull(ASV)
 
-crp_infant_6m_DESeq <- prune_taxa(sigASVs_vec_6m, crp_infant_6m_final)
+crp_infant_6m_DESeq <- prune_taxa(sigASVs_vec_6m, crp_infant_6m_final_DESeq)
 
 crp_sigASVs_6m <- tax_table(crp_infant_6m_DESeq) |>
   as.data.frame() |>
@@ -511,13 +518,10 @@ bar_plot_6m
 #setting random seed 
 set.seed(1)
 
-#Need to filter anything????
-crp_infant_12m_final
-
-#DESEq (No need to rarefaction [use infant_12m_final])
+#DESEq (No need to rarefaction [use crp_infant_12m_final_DESeq])
 #ERROR Message regarding genes having 0 reads.
 #Need to add '1' read count to all genes [LIMITATION]
-crp_infant_12m_plus1 <- transform_sample_counts(crp_infant_12m_final, function(x) x+1)
+crp_infant_12m_plus1 <- transform_sample_counts(crp_infant_12m_final_DESeq, function(x) x+1)
 crp_infant_12m_deseq <- phyloseq_to_deseq2(crp_infant_12m_plus1, ~crp_median)
 crp_DESEQ_infant_12m <- DESeq(crp_infant_12m_deseq)
 
@@ -549,7 +553,7 @@ crp_sigASVs_12m <- filtered_res_12m |>
   filter(padj <0.05 & abs(log2FoldChange)>2) |>
   dplyr::rename(ASV=row)
 
-save(crp_sigASVs_12m, file= "Files_from_Processing/DESeq files/DESEq_sigASVs_crp_12m")
+save(crp_sigASVs_12m, file= "Files_from_Processing/DESeq files/DESEq_sigASVs_crp_12m_final")
 
 view(crp_sigASVs_12m)
 
@@ -559,7 +563,7 @@ view(crp_sigASVs_12m)
 sigASVs_vec_12m <- crp_sigASVs_12m |>
   pull(ASV)
 
-crp_infant_12m_DESeq <- prune_taxa(sigASVs_vec_12m, crp_infant_12m_final)
+crp_infant_12m_DESeq <- prune_taxa(sigASVs_vec_12m, crp_infant_12m_final_DESeq)
 
 crp_sigASVs_12m <- tax_table(crp_infant_12m_DESeq) |>
   as.data.frame() |>
@@ -598,7 +602,6 @@ isa_crp_6m$sign %>% rownames_to_column(var="ASV") %>%
 #12 months
 #Setting random seed as 1 
 set.seed(1)
-
 crp_genus_12m <- tax_glom(crp_infant_12m, "Genus", NArm= FALSE)
 crp_genus_RA_12m <- transform_sample_counts(crp_genus_12m, fun=function(x) x/sum(x))
 
