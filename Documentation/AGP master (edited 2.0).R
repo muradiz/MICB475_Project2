@@ -549,12 +549,12 @@ bar_plot_12m <- ggplot(sigASVs_12m) +
 bar_plot_12m
 
 #Merged BarPlot
-sigASVs_12m_mod <- sigASVs_12m |> add_column(age = 12)
-sigASVs_6m_mod <- sigASVs_6m |> add_column(age = 6)
+sigASVs_12m_mod <- sigASVs_12m |> add_column(age = "12")
+sigASVs_6m_mod <- sigASVs_6m |> add_column(age = "6")
 sigASVs_merged <- rbind(sigASVs_12m_mod, sigASVs_6m_mod)
 view(sigASVs_merged)
 bar_plot_merged <- ggplot(sigASVs_merged) +
-  geom_bar(aes(x=Genus, y=log2FoldChange, fill =age), stat ="identity", position = "dodge") +
+  geom_bar(aes(x=Genus, y=log2FoldChange, fill=age), stat ="identity", position = "dodge") +
   geom_errorbar(aes(x=Genus, ymin=log2FoldChange-lfcSE, ymax=log2FoldChange+lfcSE)) +
   theme(axis.text.x = element_text(angle=90, hjust=1, vjust=0.5))
 
