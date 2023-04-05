@@ -164,13 +164,9 @@ agp_infant_12m_filt <- subset_taxa(agp_infant_12m,  Domain == "d__Bacteria" & Cl
 agp_infant_6m_filt_nolow <- filter_taxa(agp_infant_6m_filt, function(x) sum(x)>5, prune = TRUE)
 agp_infant_12m_filt_nolow <- filter_taxa(agp_infant_12m_filt, function(x) sum(x)>5, prune = TRUE)
 
-# Genus Level
-agp_infant_6m_genus <- tax_glom(agp_infant_6m_filt_nolow, "Genus")
-agp_infant_12m_genus <- tax_glom(agp_infant_12m_filt_nolow, "Genus")
-
 # Remove samples with less than 100 reads
-agp_infant_6m_filt_nolow_samps <- prune_samples(sample_sums(agp_infant_6m_genus)>100, agp_infant_6m_filt_nolow)
-agp_infant_12m_filt_nolow_samps <- prune_samples(sample_sums(agp_infant_12m_genus)>100, agp_infant_12m_filt_nolow)
+agp_infant_6m_filt_nolow_samps <- prune_samples(sample_sums(agp_infant_6m_filt_nolow)>100, agp_infant_6m_filt_nolow)
+agp_infant_12m_filt_nolow_samps <- prune_samples(sample_sums(agp_infant_12m_filt_nolow)>100, agp_infant_12m_filt_nolow)
 
 # Remove samples where agp is na
 agp_infant_6m_final <- subset_samples(agp_infant_6m_filt_nolow_samps, !is.na(agp) )
@@ -410,13 +406,33 @@ adonis2(dm_jaccard_12m ~ agp_clin, data=samp_dat_wdiv_12m)
 #setting random seed 
 set.seed(1)
 
+<<<<<<< HEAD
 #Using filtered data so taxglom() at GENUS level
 agp_infant_6m_genus
+=======
+#Filtering Genus-level
+# Genus Level
+agp_infant_6m_genus <- tax_glom(agp_infant_6m_filt_nolow, "Genus")
+agp_infant_12m_genus <- tax_glom(agp_infant_12m_filt_nolow, "Genus")
+
+# Remove samples with less than 100 reads
+agp_infant_6m_filt_nolow_samps_DESeq <- prune_samples(sample_sums(agp_infant_6m_genus)>100, agp_infant_6m_genus)
+agp_infant_12m_filt_nolow_samps_DESeq <- prune_samples(sample_sums(agp_infant_12m_genus)>100, agp_infant_12m_genus)
+
+# Remove samples where agp is na
+agp_infant_6m_final_DESeq <- subset_samples(agp_infant_6m_filt_nolow_samps_DESeq, !is.na(agp) )
+agp_infant_12m_final_DESeq <- subset_samples(agp_infant_12m_filt_nolow_samps_DESeq, !is.na(agp) )
+
+>>>>>>> 830103bc3f57a3c3ab621886aeb0d793559acfee
 
 #DESEq (No need to rarefaction [use infant_6m_final])
 #ERROR Message regarding genes having 0 reads.
 #Need to add '1' read count to all genes [LIMITATION]
+<<<<<<< HEAD
 infant_6m_plus1 <- transform_sample_counts(agp_infant_6m_genus, function(x) x+1)
+=======
+infant_6m_plus1 <- transform_sample_counts(agp_infant_6m_final_DESeq, function(x) x+1)
+>>>>>>> 830103bc3f57a3c3ab621886aeb0d793559acfee
 infant_6m_deseq <- phyloseq_to_deseq2(infant_6m_plus1, ~agp_clin)
 DESEQ_infant_6m <- DESeq(infant_6m_deseq)
 
@@ -447,7 +463,7 @@ sigASVs_6m <- filtered_res_6m |>
   filter(padj <0.05 & abs(log2FoldChange)>2) |>
   dplyr::rename(ASV=row)
 
-save(sigASVs_6m, file= "Files_from_Processing/DESeq files/DESEq_sigASVs_6m")
+save(sigASVs_6m, file= "Files_from_Processing/DESeq files/DESEq_sigASVs_6m_final")
 
 view(sigASVs_6m)
 
@@ -457,7 +473,11 @@ view(sigASVs_6m)
 sigASVs_vec_6m <- sigASVs_6m |>
   pull(ASV)
 
+<<<<<<< HEAD
 infant_6m_DESeq <- prune_taxa(sigASVs_vec_6m, agp_infant_6m_genus)
+=======
+infant_6m_DESeq <- prune_taxa(sigASVs_vec_6m, agp_infant_6m_final_DESeq)
+>>>>>>> 830103bc3f57a3c3ab621886aeb0d793559acfee
 
 sigASVs_6m <- tax_table(infant_6m_DESeq) |>
   as.data.frame() |>
@@ -481,6 +501,7 @@ bar_plot_6m
 #setting random seed 
 set.seed(1)
 
+<<<<<<< HEAD
 #Using filtered data so taxglom() at GENUS level
 agp_infant_12m_genus
 
@@ -488,6 +509,12 @@ agp_infant_12m_genus
 #ERROR Message regarding genes having 0 reads.
 #Need to add '1' read count to all genes [LIMITATION]
 infant_12m_plus1 <- transform_sample_counts(agp_infant_12m_genus, function(x) x+1)
+=======
+#DESEq (No need to rarefaction [use infant_12m_final])
+#ERROR Message regarding genes having 0 reads.
+#Need to add '1' read count to all genes [LIMITATION]
+infant_12m_plus1 <- transform_sample_counts(agp_infant_12m_final_DESeq, function(x) x+1)
+>>>>>>> 830103bc3f57a3c3ab621886aeb0d793559acfee
 infant_12m_deseq <- phyloseq_to_deseq2(infant_12m_plus1, ~agp_clin)
 DESEQ_infant_12m <- DESeq(infant_12m_deseq)
 
@@ -518,7 +545,7 @@ sigASVs_12m <- filtered_res_12m |>
   filter(padj <0.05 & abs(log2FoldChange)>2) |>
   dplyr::rename(ASV=row)
 
-save(sigASVs_12m, file= "Files_from_Processing/DESeq files/DESEq_sigASVs_12m")
+save(sigASVs_12m, file= "Files_from_Processing/DESeq files/DESEq_sigASVs_12m_final")
 
 view(sigASVs_12m)
 
@@ -528,7 +555,11 @@ view(sigASVs_12m)
 sigASVs_vec_12m <- sigASVs_12m |>
   pull(ASV)
 
+<<<<<<< HEAD
 infant_12m_DESeq <- prune_taxa(sigASVs_vec_12m, agp_infant_12m_genus)
+=======
+infant_12m_DESeq <- prune_taxa(sigASVs_vec_12m, agp_infant_12m_final_DESeq)
+>>>>>>> 830103bc3f57a3c3ab621886aeb0d793559acfee
 
 sigASVs_12m <- tax_table(infant_12m_DESeq) |>
   as.data.frame() |>
@@ -560,6 +591,9 @@ bar_plot_merged <- ggplot(sigASVs_merged) +
 
 bar_plot_merged
 ################## INDICATOR SPECIES ANALYSIS ####################
+#Setting seed
+set.seed(1)
+
 #ISA 6 months
 agp_genus_6m <- tax_glom(agp_infant_6m, "Genus", NArm= FALSE)
 agp_genus_RA_6m <- transform_sample_counts(agp_genus_6m, fun=function(x) x/sum(x))
@@ -572,6 +606,9 @@ isa_agp_6m$sign %>% rownames_to_column(var="ASV") %>%
   left_join(taxtable_6m_agp) %>% filter(p.value<0.05) %>% View()
 
 #ISA 12 months
+#Setting seed
+set.seed(1)
+
 agp_genus_12m <- tax_glom(agp_infant_12m, "Genus", NArm= FALSE)
 agp_genus_RA_12m <- transform_sample_counts(agp_genus_12m, fun=function(x) x/sum(x))
 
