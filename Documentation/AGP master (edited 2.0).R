@@ -410,13 +410,13 @@ adonis2(dm_jaccard_12m ~ agp_clin, data=samp_dat_wdiv_12m)
 #setting random seed 
 set.seed(1)
 
-#Need to filter anything????
-agp_infant_6m_final
+#Using filtered data so taxglom() at GENUS level
+agp_infant_6m_genus
 
 #DESEq (No need to rarefaction [use infant_6m_final])
 #ERROR Message regarding genes having 0 reads.
 #Need to add '1' read count to all genes [LIMITATION]
-infant_6m_plus1 <- transform_sample_counts(agp_infant_6m_final, function(x) x+1)
+infant_6m_plus1 <- transform_sample_counts(agp_infant_6m_genus, function(x) x+1)
 infant_6m_deseq <- phyloseq_to_deseq2(infant_6m_plus1, ~agp_clin)
 DESEQ_infant_6m <- DESeq(infant_6m_deseq)
 
@@ -457,7 +457,7 @@ view(sigASVs_6m)
 sigASVs_vec_6m <- sigASVs_6m |>
   pull(ASV)
 
-infant_6m_DESeq <- prune_taxa(sigASVs_vec_6m, agp_infant_6m_final)
+infant_6m_DESeq <- prune_taxa(sigASVs_vec_6m, agp_infant_6m_genus)
 
 sigASVs_6m <- tax_table(infant_6m_DESeq) |>
   as.data.frame() |>
@@ -481,13 +481,13 @@ bar_plot_6m
 #setting random seed 
 set.seed(1)
 
-#Need to filter anything????
-agp_infant_12m_final
+#Using filtered data so taxglom() at GENUS level
+agp_infant_12m_genus
 
 #DESEq (No need to rarefaction [use infant_6m_final])
 #ERROR Message regarding genes having 0 reads.
 #Need to add '1' read count to all genes [LIMITATION]
-infant_12m_plus1 <- transform_sample_counts(agp_infant_12m_final, function(x) x+1)
+infant_12m_plus1 <- transform_sample_counts(agp_infant_12m_genus, function(x) x+1)
 infant_12m_deseq <- phyloseq_to_deseq2(infant_12m_plus1, ~agp_clin)
 DESEQ_infant_12m <- DESeq(infant_12m_deseq)
 
@@ -528,7 +528,7 @@ view(sigASVs_12m)
 sigASVs_vec_12m <- sigASVs_12m |>
   pull(ASV)
 
-infant_12m_DESeq <- prune_taxa(sigASVs_vec_12m, agp_infant_12m_final)
+infant_12m_DESeq <- prune_taxa(sigASVs_vec_12m, agp_infant_12m_genus)
 
 sigASVs_12m <- tax_table(infant_12m_DESeq) |>
   as.data.frame() |>
