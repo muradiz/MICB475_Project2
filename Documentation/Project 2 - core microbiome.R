@@ -4,6 +4,7 @@ library(tidyverse)
 library(phyloseq)
 library(microbiome)
 library(ggVennDiagram)
+library(ggeasy)
 
 #load files
 agp_infant_6m_final <- load("agp_infant_6m_final.RData")
