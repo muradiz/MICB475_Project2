@@ -1,0 +1,46 @@
+#SampleID	host_subject_id	sex	agp	agp_status	agp_clin	infection_status
+11402.MC001.fastq.gz	MC001	M	0.43	normal	Below	Reference
+11402.MC004.fastq.gz	MC004	M	0.45	normal	Below	Reference
+11402.MC005.fastq.gz	MC005	F	0.71	normal	Below	Reference
+11402.MC008.fastq.gz	MC008	M	0.76	normal	Below	Reference
+11402.MC009.fastq.gz	MC009	M	0.7	normal	Below	Reference
+11402.MC010.fastq.gz	MC010	M	0.54	normal	Below	Reference
+11402.MC011.fastq.gz	MC011	F	0.35	normal	Below	Reference
+11402.MC013.fastq.gz	MC013	M	0.49	normal	Below	Reference
+11402.MC014.fastq.gz	MC014	M	0.49	normal	Below	Reference
+11402.MC016.fastq.gz	MC016	M	0.6	normal	Below	Reference
+11402.MC017.fastq.gz	MC017	F	0.41	normal	Below	Reference
+11402.MC018.fastq.gz	MC018	F	0.58	normal	Below	Reference
+11402.MC020.fastq.gz	MC020	F	0.42	normal	Below	Reference
+11402.MC023.fastq.gz	MC023	F	1.66	elevated	Above	Late Convalescence
+11402.MC024.fastq.gz	MC024	M	0.48	normal	Below	Reference
+11402.MC028.fastq.gz	MC028	M	1.49	elevated	Above	Late Convalescence
+11402.MC030.fastq.gz	MC030	M	1.18	elevated	Above	Late Convalescence
+11402.MC037.fastq.gz	MC037	M	0.51	normal	Below	Reference
+11402.MC038.fastq.gz	MC038	M	0.61	normal	Below	Reference
+11402.MC041.fastq.gz	MC041	M	1.15	elevated	Above	Late Convalescence
+11402.MC042.fastq.gz	MC042	M	0.66	normal	Below	Reference
+11402.MC051.fastq.gz	MC051	M	1.08	elevated	Above	Late Convalescence
+11402.MC052.fastq.gz	MC052	M	0.76	normal	Below	Reference
+11402.MC072.fastq.gz	MC072	M	0.6	normal	Below	Reference
+11402.MC106.fastq.gz	MC106	M	0.71	normal	Below	Reference
+11402.MC119.fastq.gz	MC119	F	0.59	normal	Below	Reference
+11402.MC122.fastq.gz	MC122	F	0.4	normal	Below	Reference
+11402.MC126.fastq.gz	MC126	M	1.93	elevated	Above	Late Convalescence
+11402.MC128.fastq.gz	MC128	F	0.91	normal	Below	Reference
+11402.MC134.fastq.gz	MC134	F	0.78	normal	Below	Reference
+11402.MC141.fastq.gz	MC141	F	0.87	normal	Below	Reference
+11402.MC142.fastq.gz	MC142	F	0.52	normal	Below	Reference
+11402.MC144.fastq.gz	MC144	M	1.92	elevated	Above	Late Convalescence
+11402.MC147.fastq.gz	MC147	M	1.41	elevated	Above	Late Convalescence
+11402.MC153.fastq.gz	MC153	M	1.1	elevated	Above	Late Convalescence
+11402.MC155.fastq.gz	MC155	M	0.72	normal	Below	Reference
+11402.MC163.fastq.gz	MC163	F	0.61	normal	Below	Reference
+11402.MC166.fastq.gz	MC166	M	1.87	elevated	Above	Early Convalescence
+11402.MC168.fastq.gz	MC168	F	0.88	normal	Below	Incubation
+11402.MC172.fastq.gz	MC172	F	0.63	normal	Below	Reference
+11402.MC174.fastq.gz	MC174	M	0.72	normal	Below	Reference
+11402.MC175.fastq.gz	MC175	F	0.73	normal	Below	Reference
+11402.MC181.fastq.gz	MC181	F	0.24	normal	Below	Reference
+11402.MC193.fastq.gz	MC193	Missing: Not collected	0.69	normal	Below	Reference
+11402.MC198.fastq.gz	MC198	F	0.51	normal	Below	Reference

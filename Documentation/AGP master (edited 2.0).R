@@ -406,14 +406,18 @@ adonis2(dm_jaccard_12m ~ agp_clin, data=samp_dat_wdiv_12m)
 #setting random seed 
 set.seed(1)
 
+
+#Using filtered data so taxglom() at GENUS level
+#agp_infant_6m_genus
+
 #Filtering Genus-level
 # Genus Level
-agp_infant_6m_genus <- tax_glom(agp_infant_6m_filt_nolow, "Genus")
-agp_infant_12m_genus <- tax_glom(agp_infant_12m_filt_nolow, "Genus")
+#agp_infant_6m_genus <- tax_glom(agp_infant_6m_filt_nolow, "Genus")
+#agp_infant_12m_genus <- tax_glom(agp_infant_12m_filt_nolow, "Genus")
 
 # Remove samples with less than 100 reads
-agp_infant_6m_filt_nolow_samps_DESeq <- prune_samples(sample_sums(agp_infant_6m_genus)>100, agp_infant_6m_genus)
-agp_infant_12m_filt_nolow_samps_DESeq <- prune_samples(sample_sums(agp_infant_12m_genus)>100, agp_infant_12m_genus)
+agp_infant_6m_filt_nolow_samps_DESeq <- prune_samples(sample_sums(agp_infant_6m_final)>100, agp_infant_6m_final)
+agp_infant_12m_filt_nolow_samps_DESeq <- prune_samples(sample_sums(agp_infant_12m_final)>100, agp_infant_12m_final)
 
 # Remove samples where agp is na
 agp_infant_6m_final_DESeq <- subset_samples(agp_infant_6m_filt_nolow_samps_DESeq, !is.na(agp) )
@@ -423,6 +427,9 @@ agp_infant_12m_final_DESeq <- subset_samples(agp_infant_12m_filt_nolow_samps_DES
 #DESEq (No need to rarefaction [use infant_6m_final])
 #ERROR Message regarding genes having 0 reads.
 #Need to add '1' read count to all genes [LIMITATION]
+
+#infant_6m_plus1 <- transform_sample_counts(agp_infant_6m_genus, function(x) x+1)
+
 infant_6m_plus1 <- transform_sample_counts(agp_infant_6m_final_DESeq, function(x) x+1)
 infant_6m_deseq <- phyloseq_to_deseq2(infant_6m_plus1, ~agp_clin)
 DESEQ_infant_6m <- DESeq(infant_6m_deseq)
@@ -464,6 +471,8 @@ view(sigASVs_6m)
 sigASVs_vec_6m <- sigASVs_6m |>
   pull(ASV)
 
+#infant_6m_DESeq <- prune_taxa(sigASVs_vec_6m, agp_infant_6m_genus)
+
 infant_6m_DESeq <- prune_taxa(sigASVs_vec_6m, agp_infant_6m_final_DESeq)
 
 sigASVs_6m <- tax_table(infant_6m_DESeq) |>
@@ -474,7 +483,7 @@ sigASVs_6m <- tax_table(infant_6m_DESeq) |>
   mutate(Genus = make.unique(Genus)) |>
   mutate(Genus = factor(Genus, levels= unique(Genus)))|>
   drop_na(Genus) |>
-  filter(Genus != "NA.2" & Genus != "NA.1")
+  filter(Genus != "NA.2" & Genus != "NA.1"& Genus != "NA.3" & Genus != "NA.4")
 
 view(sigASVs_6m)
 
@@ -487,6 +496,14 @@ bar_plot_6m
 #12 months
 #setting random seed 
 set.seed(1)
+
+#Using filtered data so taxglom() at GENUS level
+#agp_infant_12m_genus
+
+#DESEq (No need to rarefaction [use infant_6m_final])
+#ERROR Message regarding genes having 0 reads.
+#Need to add '1' read count to all genes [LIMITATION]
+#infant_12m_plus1 <- transform_sample_counts(agp_infant_12m_genus, function(x) x+1)
 
 #DESEq (No need to rarefaction [use infant_12m_final])
 #ERROR Message regarding genes having 0 reads.
@@ -532,8 +549,10 @@ view(sigASVs_12m)
 sigASVs_vec_12m <- sigASVs_12m |>
   pull(ASV)
 
-infant_12m_DESeq <- prune_taxa(sigASVs_vec_12m, agp_infant_12m_final_DESeq)
+#infant_12m_DESeq <- prune_taxa(sigASVs_vec_12m, agp_infant_12m_genus)
 
+infant_12m_DESeq <- prune_taxa(sigASVs_vec_12m, agp_infant_12m_final_DESeq)
+ 
 sigASVs_12m <- tax_table(infant_12m_DESeq) |>
   as.data.frame() |>
   rownames_to_column(var="ASV") |>
@@ -542,7 +561,7 @@ sigASVs_12m <- tax_table(infant_12m_DESeq) |>
   mutate(Genus = make.unique(Genus)) |>
   mutate(Genus = factor(Genus, levels= unique(Genus)))|>
   drop_na(Genus) |>
-  filter(Genus != "NA.2" & Genus != "NA.1")
+  filter(Genus != "NA.2" & Genus != "NA.1" & Genus != "NA.3" & Genus != "NA.4")
 
 view(sigASVs_12m)
 
@@ -551,6 +570,52 @@ bar_plot_12m <- ggplot(sigASVs_12m) +
   geom_errorbar(aes(x=Genus, ymin=log2FoldChange-lfcSE, ymax=log2FoldChange+lfcSE)) +
   theme(axis.text.x = element_text(angle=90, hjust=1, vjust=0.5))
 bar_plot_12m
+
+#Merged BarPlot (Old)
+#sigASVs_12m_mod <- sigASVs_12m |> add_column(age = "12")
+#sigASVs_6m_mod <- sigASVs_6m |> add_column(age = "6")
+#sigASVs_merged <- rbind(sigASVs_12m_mod, sigASVs_6m_mod)
+#view(sigASVs_merged)
+#bar_plot_merged <- ggplot(sigASVs_merged) +
+#  geom_bar(aes(x=Genus, y=log2FoldChange, fill=age), stat ="identity", position = "dodge") +
+#  geom_errorbar(aes(x=Genus, ymin=log2FoldChange-lfcSE, ymax=log2FoldChange+lfcSE)) +
+#  theme(axis.text.x = element_text(angle=90, hjust=1, vjust=0.5))
+
+#bar_plot_merged
+
+#Merged BarPlot (New Code)
+sigASVs_merged <- sigASVs_12m |>
+                  rbind(sigASVs_6m) |>
+                  unique()
+
+all_lfc <- res_12m |>
+          mutate(age ='12') |>
+          rbind(res_6m |> mutate(age='6')) |>
+          filter(row %in% sigASVs_merged)
+
+names(all_lfc)[1] = 'ASV'
+              
+  
+tax_tbl_agp_12m <- agp_infant_12m_final@tax_table |>
+                    as.matrix() |>
+                    as.data.frame() |>
+                    rownames_to_column("OTU")
+
+tax_tbl_agp_6m <- agp_infant_6m_final@tax_table |>
+                  as.matrix() |>
+                  as.data.frame() |>
+                  rownames_to_column("OTU")
+
+tax_tbl_merged <- rbind(tax_tbl_agp_12m, tax_tbl_agp_12m) |>
+                  unique()
+
+all_lfc <- all_lfc |>
+          left_join(tax_tbl_merged) |>
+          as.data.frame() |>
+          rownames_to_column('ASV') |>
+          select(ASV, Genus)
+
+all_lfc 
 
 ################## INDICATOR SPECIES ANALYSIS ####################
 #Setting seed

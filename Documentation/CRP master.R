@@ -583,6 +583,18 @@ bar_plot_12m <- ggplot(crp_sigASVs_12m) +
   theme(axis.text.x = element_text(angle=90, hjust=1, vjust=0.5))
 bar_plot_12m
 
+#Merged BarPlot
+crp_sigASVs_12m_mod <- crp_sigASVs_12m |> add_column(age = "12")
+crp_sigASVs_6m_mod <- crp_sigASVs_6m |> add_column(age = "6")
+crp_sigASVs_merged <- rbind(crp_sigASVs_12m_mod, crp_sigASVs_6m_mod)
+view(crp_sigASVs_merged)
+bar_plot_merged <- ggplot(crp_sigASVs_merged) +
+  geom_bar(aes(x=Genus, y=log2FoldChange, fill=age), stat ="identity", position = "dodge") +
+  geom_errorbar(aes(x=Genus, ymin=log2FoldChange-lfcSE, ymax=log2FoldChange+lfcSE)) +
+  theme(axis.text.x = element_text(angle=90, hjust=1, vjust=0.5))
+
+bar_plot_merged
+
 
 ################ INDICATOR SPECIES ANALYSIS ###############
 #6 months
