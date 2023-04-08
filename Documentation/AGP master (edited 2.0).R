@@ -176,6 +176,7 @@ agp_infant_12m_final <- subset_samples(agp_infant_12m_filt_nolow_samps, !is.na(a
 # rngseed sets a random number. If you want to reproduce this exact analysis, you need
 # to set rngseed the same number each time
 #6 months
+set.seed(1)
 rarecurve(t(as.data.frame(otu_table(agp_infant_6m_final))), cex=0.1)
 agp_infant_6m_rare <- rarefy_even_depth(agp_infant_6m_final, rngseed = 1, sample.size = 15000)
 
@@ -586,6 +587,7 @@ bar_plot_12m
 #Merged BarPlot (New Code)
 sigASVs_merged <- sigASVs_12m |>
                   rbind(sigASVs_6m) |>
+                  pull(ASV) |>
                   unique()
 
 all_lfc <- res_12m |>
@@ -594,28 +596,39 @@ all_lfc <- res_12m |>
           filter(row %in% sigASVs_merged)
 
 names(all_lfc)[1] = 'ASV'
-              
+#view(all_lfc)              
   
 tax_tbl_agp_12m <- agp_infant_12m_final@tax_table |>
                     as.matrix() |>
-                    as.data.frame() |>
-                    rownames_to_column("OTU")
+                    as.data.frame() 
 
 tax_tbl_agp_6m <- agp_infant_6m_final@tax_table |>
                   as.matrix() |>
-                  as.data.frame() |>
-                  rownames_to_column("OTU")
+                  as.data.frame()
 
-tax_tbl_merged <- rbind(tax_tbl_agp_12m, tax_tbl_agp_12m) |>
+tax_tbl_merged <- rbind(tax_tbl_agp_6m, tax_tbl_agp_12m) |>
                   unique()
 
-all_lfc <- all_lfc |>
-          left_join(tax_tbl_merged) |>
-          as.data.frame() |>
-          rownames_to_column('ASV') |>
-          select(ASV, Genus)
 
-all_lfc 
+all_lfc = all_lfc %>% left_join(tax_table(agp_infant_12m_final) %>% as.data.frame() %>% rownames_to_column('ASV') %>% select(ASV,Genus))
+
+all_lfc = all_lfc %>% mutate(Significant = ifelse(padj<0.05,T,F)) |>
+          mutate(fold_change = ifelse(log2FoldChange<0, "Higher Abundance", "Lower Abundance"))
+          #filter(Significant == TRUE)
+
+#view(all_lfc)
+
+bar_plot_mergedv2 <- all_lfc %>% 
+  ggplot(aes(Genus,log2FoldChange, fill=fold_change, alpha=Significant)) +
+  scale_alpha_manual(values = c(0.3,2)) +
+  geom_col() +
+  geom_errorbar(aes(x=Genus, ymin=log2FoldChange-lfcSE, ymax=log2FoldChange+lfcSE)) +
+  theme(axis.text.x = element_text(angle=90, hjust=1, vjust=0.5),
+        strip.text.y.right = element_text(angle=0)) +
+  labs(fill = "Fold Change", x = "ASVs mapped to Genus") +
+  facet_grid(rows = vars(age))
+
+bar_plot_mergedv2
 
 ################## INDICATOR SPECIES ANALYSIS ####################
 #Setting seed
