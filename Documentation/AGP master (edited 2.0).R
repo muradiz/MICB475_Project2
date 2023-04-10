@@ -613,19 +613,26 @@ tax_tbl_merged <- rbind(tax_tbl_agp_6m, tax_tbl_agp_12m) |>
 all_lfc = all_lfc %>% left_join(tax_table(agp_infant_12m_final) %>% as.data.frame() %>% rownames_to_column('ASV') %>% select(ASV,Genus))
 
 all_lfc = all_lfc %>% mutate(Significant = ifelse(padj<0.05,T,F)) |>
-          mutate(fold_change = ifelse(log2FoldChange<0, "Higher Abundance", "Lower Abundance"))
-          #filter(Significant == TRUE)
+          mutate(fold_change = ifelse(log2FoldChange<0, "Increased in High AGP", "Increased in Low AGP")) |>
+          filter(Genus != "NA") |>
+          filter(Significant == TRUE) |>
+          unique()
+
+#order = all_lfc %>% filter(age=="12") %>% arrange(log2FoldChange) %>% mutate(Genus = factor(Genus, levels = unique(.$Genus)))
+#all_lfc = all_lfc %>% mutate(Genus = factor(Genus, levels = unique(order$Genus))) |> filter(Genus != "NA") |>
+  
 
 #view(all_lfc)
 
 bar_plot_mergedv2 <- all_lfc %>% 
-  ggplot(aes(Genus,log2FoldChange, fill=fold_change, alpha=Significant)) +
+  ggplot(aes(reorder(Genus, -log2FoldChange),log2FoldChange, fill=fold_change)) +
   scale_alpha_manual(values = c(0.3,2)) +
   geom_col() +
+  geom_hline(yintercept=0, linewidth = 0.75)+
   geom_errorbar(aes(x=Genus, ymin=log2FoldChange-lfcSE, ymax=log2FoldChange+lfcSE)) +
   theme(axis.text.x = element_text(angle=90, hjust=1, vjust=0.5),
-        strip.text.y.right = element_text(angle=0)) +
-  labs(fill = "Fold Change", x = "ASVs mapped to Genus") +
+        strip.text.y.right = element_text(angle=0), text = element_text(size = 16)) +
+  labs(fill = "Fold Change", x = "ASVs mapped to Genus", y ="Log2FoldChange (High/Low AGP)") +
   facet_grid(rows = vars(age))
 
 bar_plot_mergedv2
