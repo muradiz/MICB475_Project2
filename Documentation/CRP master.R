@@ -437,12 +437,12 @@ set.seed(1)
 #Filtering Genus-level, no need to rarefy
 
 # Genus Level
-crp_infant_6m_genus <- tax_glom(crp_infant_6m_filt_nolow, "Genus")
-crp_infant_12m_genus <- tax_glom(crp_infant_12m_filt_nolow, "Genus")
+#crp_infant_6m_genus <- tax_glom(crp_infant_6m_filt_nolow, "Genus")
+#crp_infant_12m_genus <- tax_glom(crp_infant_12m_filt_nolow, "Genus")
 
 # Remove samples with less than 100 reads
-crp_infant_6m_filt_nolow_samps_DESeq <- prune_samples(sample_sums(crp_infant_6m_genus)>100, crp_infant_6m_genus)
-crp_infant_12m_filt_nolow_samps_DESeq <- prune_samples(sample_sums(crp_infant_12m_genus)>100, crp_infant_12m_genus)
+crp_infant_6m_filt_nolow_samps_DESeq <- prune_samples(sample_sums(crp_infant_6m_final)>100, crp_infant_6m_final)
+crp_infant_12m_filt_nolow_samps_DESeq <- prune_samples(sample_sums(crp_infant_12m_final)>100, crp_infant_12m_final)
 
 # Remove samples where crp is na
 crp_infant_6m_final_DESeq <- subset_samples(crp_infant_6m_filt_nolow_samps_DESeq, !is.na(crp))
@@ -584,18 +584,69 @@ bar_plot_12m <- ggplot(crp_sigASVs_12m) +
 bar_plot_12m
 
 #Merged BarPlot
-crp_sigASVs_12m_mod <- crp_sigASVs_12m |> add_column(age = "12")
-crp_sigASVs_6m_mod <- crp_sigASVs_6m |> add_column(age = "6")
-crp_sigASVs_merged <- rbind(crp_sigASVs_12m_mod, crp_sigASVs_6m_mod)
-view(crp_sigASVs_merged)
-bar_plot_merged <- ggplot(crp_sigASVs_merged) +
-  geom_bar(aes(x=Genus, y=log2FoldChange, fill=age), stat ="identity", position = "dodge") +
+#crp_sigASVs_12m_mod <- crp_sigASVs_12m |> add_column(age = "12")
+#crp_sigASVs_6m_mod <- crp_sigASVs_6m |> add_column(age = "6")
+#crp_sigASVs_merged <- rbind(crp_sigASVs_12m_mod, crp_sigASVs_6m_mod)
+#view(crp_sigASVs_merged)
+#bar_plot_merged <- ggplot(crp_sigASVs_merged) +
+#  geom_bar(aes(x=Genus, y=log2FoldChange, fill=age), stat ="identity", position = "dodge") +
+#  geom_errorbar(aes(x=Genus, ymin=log2FoldChange-lfcSE, ymax=log2FoldChange+lfcSE)) +
+#  theme(axis.text.x = element_text(angle=90, hjust=1, vjust=0.5))
+
+#bar_plot_merged
+
+#Merged BarPlot (New Code)
+sigASVs_merged <- crp_sigASVs_12m |>
+  rbind(crp_sigASVs_6m) |>
+  pull(ASV) |>
+  unique()
+
+all_lfc <- res_12m |>
+  mutate(age ='12') |>
+  rbind(res_6m |> mutate(age='6')) |>
+  filter(row %in% sigASVs_merged)
+
+names(all_lfc)[1] = 'ASV'
+#view(all_lfc)              
+
+tax_tbl_crp_12m <- crp_infant_12m_final@tax_table |>
+  as.matrix() |>
+  as.data.frame() 
+
+tax_tbl_crp_6m <- crp_infant_6m_final@tax_table |>
+  as.matrix() |>
+  as.data.frame()
+
+tax_tbl_merged <- rbind(tax_tbl_crp_6m, tax_tbl_crp_12m) |>
+  unique()
+
+
+all_lfc = all_lfc %>% left_join(tax_table(crp_infant_12m_final) %>% as.data.frame() %>% rownames_to_column('ASV') %>% select(ASV,Genus))
+
+all_lfc = all_lfc %>% mutate(Significant = ifelse(padj<0.05,T,F)) |>
+  mutate(fold_change = ifelse(log2FoldChange<0, "Increased in Low CRP", "Increased in High CRP")) |>
+  filter(Genus != "NA") |>
+  filter(Significant == TRUE) |>
+  unique()
+
+#order = all_lfc %>% filter(age=="12") %>% arrange(log2FoldChange) %>% mutate(Genus = factor(Genus, levels = unique(.$Genus)))
+#all_lfc = all_lfc %>% mutate(Genus = factor(Genus, levels = unique(order$Genus))) |> filter(Genus != "NA") |>
+
+
+#view(all_lfc)
+
+bar_plot_mergedv2 <- all_lfc %>% 
+  ggplot(aes(reorder(Genus, -log2FoldChange),log2FoldChange, fill=fold_change)) +
+  scale_alpha_manual(values = c(0.3,2)) +
+  geom_col() +
+  geom_hline(yintercept=0, linewidth = 0.75)+
   geom_errorbar(aes(x=Genus, ymin=log2FoldChange-lfcSE, ymax=log2FoldChange+lfcSE)) +
-  theme(axis.text.x = element_text(angle=90, hjust=1, vjust=0.5))
+  theme(axis.text.x = element_text(angle=90, hjust=1, vjust=0.5),
+        strip.text.y.right = element_text(angle=0), text = element_text(size = 16)) +
+  labs(fill = "Fold Change", x = "ASVs mapped to Genus", y ="Log2FoldChange (High/Low CRP)") +
+  facet_grid(rows = vars(age))
 
-bar_plot_merged
-
-
+bar_plot_mergedv2
 ################ INDICATOR SPECIES ANALYSIS ###############
 #6 months
 #Setting random seed as 1 
