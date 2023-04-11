@@ -436,7 +436,7 @@ infant_6m_deseq <- phyloseq_to_deseq2(infant_6m_plus1, ~agp_clin)
 DESEQ_infant_6m <- DESeq(infant_6m_deseq)
 
 #Viewing Results
-res_6m <- results(DESEQ_infant_6m, tidy=TRUE)
+res_6m <- results(DESEQ_infant_6m, tidy=TRUE, contrast= c("agp_clin", "Above", "Below"))
 View(res_6m)
 
 #Filtering out the ASV results with N.A. values for p adjusted values
@@ -515,7 +515,7 @@ infant_12m_deseq <- phyloseq_to_deseq2(infant_12m_plus1, ~agp_clin)
 DESEQ_infant_12m <- DESeq(infant_12m_deseq)
 
 #Viewing Results
-res_12m <- results(DESEQ_infant_12m, tidy=TRUE)
+res_12m <- results(DESEQ_infant_12m, tidy=TRUE, contrast= c("agp_clin", "Above", "Below"))
 View(res_12m)
 
 #Filtering out the ASV results with N.A. values for p adjusted values
@@ -614,7 +614,7 @@ tax_tbl_merged <- rbind(tax_tbl_agp_6m, tax_tbl_agp_12m) |>
 all_lfc = all_lfc %>% left_join(tax_table(agp_infant_12m_final) %>% as.data.frame() %>% rownames_to_column('ASV') %>% select(ASV,Genus))
 
 all_lfc = all_lfc %>% mutate(Significant = ifelse(padj<0.05,T,F)) |>
-          mutate(fold_change = ifelse(log2FoldChange<0, "Increased in High AGP", "Increased in Low AGP")) |>
+          mutate(fold_change = ifelse(log2FoldChange<0, "Increased in Low AGP", "Increased in High AGP")) |>
           filter(Genus != "NA") |>
           filter(Significant == TRUE) |>
           unique()
@@ -624,7 +624,7 @@ all_lfc = all_lfc %>% mutate(Significant = ifelse(padj<0.05,T,F)) |>
   
 
 #view(all_lfc)
-
+dev.of
 bar_plot_mergedv2 <- all_lfc %>% 
   ggplot(aes(reorder(Genus, -log2FoldChange),log2FoldChange, fill=fold_change)) +
   scale_alpha_manual(values = c(0.3,2)) +

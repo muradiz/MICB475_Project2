@@ -457,7 +457,7 @@ crp_infant_6m_deseq <- phyloseq_to_deseq2(crp_infant_6m_plus1, ~crp_median)
 crp_DESEQ_infant_6m <- DESeq(crp_infant_6m_deseq)
 
 #Viewing Results
-res_6m <- results(crp_DESEQ_infant_6m, tidy=TRUE)
+res_6m <- results(crp_DESEQ_infant_6m, tidy=TRUE, contrast= c("crp_median", "Above", "Below"))
 View(res_6m)
 
 #Filtering out the ASV results with N.A. values for p adjusted values
@@ -526,7 +526,7 @@ crp_infant_12m_deseq <- phyloseq_to_deseq2(crp_infant_12m_plus1, ~crp_median)
 crp_DESEQ_infant_12m <- DESeq(crp_infant_12m_deseq)
 
 #Viewing Results
-res_12m <- results(crp_DESEQ_infant_12m, tidy=TRUE)
+res_12m <- results(crp_DESEQ_infant_12m, tidy=TRUE, contrast= c("crp_median", "Above", "Below"))
 View(res_12m)
 
 #Filtering out the ASV results with N.A. values for p adjusted values
