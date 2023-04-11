@@ -621,16 +621,19 @@ all_lfc = all_lfc %>% mutate(Significant = ifelse(padj<0.05,T,F)) |>
 
 #order = all_lfc %>% filter(age=="12") %>% arrange(log2FoldChange) %>% mutate(Genus = factor(Genus, levels = unique(.$Genus)))
 #all_lfc = all_lfc %>% mutate(Genus = factor(Genus, levels = unique(order$Genus))) |> filter(Genus != "NA") |>
-  
 
-#view(all_lfc)
-dev.of
+agp_otu_key <- all_lfc |> select(ASV,Genus) %>% unique() %>% group_by(Genus) %>%
+  mutate(Genus2 = paste(Genus,row_number(),sep='.')) %>% ungroup()
+
+all_lfc <- all_lfc |> left_join(agp_otu_key)
+view(all_lfc)
+
 bar_plot_mergedv2 <- all_lfc %>% 
-  ggplot(aes(reorder(Genus, -log2FoldChange),log2FoldChange, fill=fold_change)) +
+  ggplot(aes(reorder(Genus2, -log2FoldChange),log2FoldChange, fill=fold_change)) +
   scale_alpha_manual(values = c(0.3,2)) +
   geom_col() +
   geom_hline(yintercept=0, linewidth = 0.75)+
-  geom_errorbar(aes(x=Genus, ymin=log2FoldChange-lfcSE, ymax=log2FoldChange+lfcSE)) +
+  geom_errorbar(aes(x=Genus2, ymin=log2FoldChange-lfcSE, ymax=log2FoldChange+lfcSE)) +
   theme(axis.text.x = element_text(angle=90, hjust=1, vjust=0.5),
         strip.text.y.right = element_text(angle=0), text = element_text(size = 16)) +
   labs(fill = "Fold Change", x = "ASVs mapped to Genus", y ="Log2FoldChange (High/Low AGP)") +
