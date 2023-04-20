@@ -224,17 +224,20 @@ plot_richness(crp_infant_6m_rare)
 
 plot_richness(crp_infant_6m_rare, measures = c("Shannon","Chao1"))
 # Add ggplot layers if desired to adjust visuals
-plot_richness(crp_infant_6m_rare, x = "crp_median", measures = c("Shannon","Chao1")) +
-  xlab("crp median") +
-  geom_boxplot()
+"6M_CRP_alpha" <- plot_richness(crp_infant_6m_rare, x = "crp_median", measures = c("Shannon")) +
+  xlab("CRP Levels") +
+  geom_boxplot()+geom_signif(comparisons = list(c("High","Low")),annotation = c("p=0.6915")) + ylim(0,5) + theme_bw()
+
+ggsave("6M_CRP_alpha.png", height = 4, width = 3)
 
 ##Beta Diversity Plots
 bc_dm_6m <- phyloseq::distance(crp_infant_6m_rare, method="bray")
 pcoa_bc_6m <- ordinate(crp_infant_6m_rare, method="PCoA", distance=bc_dm_6m)
 
-plot_ordination(crp_infant_6m_rare, pcoa_bc_6m, color = "crp", shape="crp_median") +
-  scale_color_gradient(low="darkgreen", high="lightblue") +
-  labs(pch="CRP status", col = "CRP Levels")
+sixMCRPbeta <- plot_ordination(crp_infant_6m_rare, pcoa_bc_6m, color = "crp_median") +
+  labs( col = "CRP Levels") + stat_ellipse()
+ggsave("sixMCRPbeta.png", width = 5, height  = 3.5)
+
 
 #create a taxa summaries plot
 crp_infant_6m_RA <- transform_sample_counts(crp_infant_6m_rare, function(x) x/sum(x))
@@ -250,17 +253,20 @@ plot_richness(crp_infant_12m_rare)
 
 plot_richness(crp_infant_12m_rare, measures = c("Shannon","Chao1"))
 # Add ggplot layers if desired to adjust visuals
-plot_richness(crp_infant_12m_rare, x = "crp_median", measures = c("Shannon","Chao1")) +
-  xlab("crp median") +
-  geom_boxplot()
+"12M_CRP_alpha" <- plot_richness(crp_infant_12m_rare, x = "crp_median", measures = c("Shannon")) +
+  xlab("CRP Levels") +
+  geom_boxplot() + geom_signif(comparisons = list(c("High","Low")),annotation = c("p=0.1781")) + ylim(0,5) + theme_bw()
+
+ggsave("12M_CRP_alpha.png", height = 4, width = 3)
 
 ##Beta Diversity Plots
 bc_dm_12m <- phyloseq::distance(crp_infant_12m_rare, method="bray")
 pcoa_bc_12m <- ordinate(crp_infant_12m_rare, method="PCoA", distance=bc_dm_12m)
 
-plot_ordination(crp_infant_12m_rare, pcoa_bc_12m, color = "crp", shape="crp_median") +
-  scale_color_gradient(low="darkgreen", high="lightblue") +
-  labs(pch="CRP status", col = "CRP Levels")
+twelveMbeta <- plot_ordination(crp_infant_12m_rare, pcoa_bc_12m, color = "crp_median") +
+  labs( col = "CRP Levels") + stat_ellipse()
+
+ggsave("twelveMCRPbeta.png", width = 5, height  = 3.5)
 
 #create a taxa summaries plot
 crp_infant_12m_RA <- transform_sample_counts(crp_infant_12m_rare, function(x) x/sum(x))
