@@ -203,19 +203,22 @@ save(agp_infant_12m_rare, file="agp_infant_12m_rare.RData")
 plot_richness(agp_infant_6m_rare)
 # select certain alpha diversity metrics
 
-plot_richness(agp_infant_6m_rare, measures = c("Shannon","Chao1"))
+plot_richness(agp_infant_6m_rare, measures = c("Shannon"))
 # Add ggplot layers if desired to adjust visuals
-plot_richness(agp_infant_6m_rare, x = "agp_clin", measures = c("Shannon","Chao1")) +
-  xlab("agp_clin") +
-  geom_boxplot()
+"6M_AGP_Alpha" <- plot_richness(agp_infant_6m_rare, x = "agp_clin", measures = c("Shannon")) +
+  xlab("AGP Levels") +
+  geom_boxplot() + geom_signif(comparisons = list(c("High","Low")),annotation = c("p=0.5274")) + ylim(0,5) + theme_bw()
+
+ggsave("6M_AGP_Alpha.png", height = 4, width = 3)
 
 ##Beta Diversity Plots
 bc_dm_6m <- phyloseq::distance(agp_infant_6m_rare, method="bray")
 pcoa_bc_6m <- ordinate(agp_infant_6m_rare, method="PCoA", distance=bc_dm_6m)
 
-plot_ordination(agp_infant_6m_rare, pcoa_bc_6m, color = "agp", shape="agp_clin") +
-  scale_color_gradient(low="darkgreen", high="lightblue") +
-  labs(pch="AGP Clincal Levels", col = "AGP (g/L)")
+"6M_AGP_Beta" <- plot_ordination(agp_infant_6m_rare, pcoa_bc_6m, color = "agp_clin") +
+  labs( col = "AGP Levels") + stat_ellipse()
+
+ggsave("6M_AGP_Beta.png", height = 3.5, width = 5)
 
 #create a taxa summaries plot
 agp_infant_6m_RA <- transform_sample_counts(agp_infant_6m_rare, function(x) x/sum(x))
@@ -224,6 +227,11 @@ agp_infant_6m_phylum <- tax_glom(agp_infant_6m_RA, taxrank = "Phylum", NArm=FALS
 plot_bar(agp_infant_6m_phylum, fill="Phylum") +
   facet_wrap(.~agp_clin, scales = "free_x")
 
+"6M_AGP_TaxaSum" <- plot_bar(agp_infant_6m_phylum, fill="Phylum") +
+  facet_wrap(.~agp_clin, scales = "free_x")
+
+ggsave("6M_AGP_TaxaSum.png", height = 4, width = 9)
+
 #12 months
 #Alpha Diversity Plots
 plot_richness(agp_infant_12m_rare)
@@ -231,17 +239,20 @@ plot_richness(agp_infant_12m_rare)
 
 plot_richness(agp_infant_12m_rare, measures = c("Shannon","Chao1"))
 # Add ggplot layers if desired to adjust visuals
-plot_richness(agp_infant_12m_rare, x = "agp_clin", measures = c("Shannon","Chao1")) +
-  xlab("agp_clin") +
-  geom_boxplot()
+"12M_AGP_Alpha" <- plot_richness(agp_infant_12m_rare, x = "agp_clin", measures = c("Shannon")) +
+  xlab("AGP Levels") +
+  geom_boxplot()+ geom_signif(comparisons = list(c("High","Low")),annotation = c("p=0.9263")) + ylim(0,5) + theme_bw()
+
+ggsave("12M_AGP_Alpha.png", height = 4, width = 3)
 
 ##Beta Diversity Plots
 bc_dm_12m <- phyloseq::distance(agp_infant_12m_rare, method="bray")
 pcoa_bc_12m <- ordinate(agp_infant_12m_rare, method="PCoA", distance=bc_dm_12m)
 
-plot_ordination(agp_infant_12m_rare, pcoa_bc_12m, color = "agp", shape="agp_clin") +
-  scale_color_gradient(low="darkgreen", high="lightblue") +
-  labs(pch="AGP Clincal Levels", col = "AGP (g/L)")
+"12M_AGP_Beta" <- plot_ordination(agp_infant_12m_rare, pcoa_bc_12m, color = "agp_clin") +
+  labs( col = "AGP Levels") + stat_ellipse()
+
+ggsave("12M_AGP_Beta.png", height = 3.5, width = 5)
 
 #create a taxa summaries plot
 agp_infant_12m_RA <- transform_sample_counts(agp_infant_12m_rare, function(x) x/sum(x))
@@ -249,6 +260,7 @@ plot_bar(agp_infant_12m_RA, fill="Phylum")
 agp_infant_12m_phylum <- tax_glom(agp_infant_12m_RA, taxrank = "Phylum", NArm=FALSE)
 plot_bar(agp_infant_12m_phylum, fill="Phylum") +
   facet_wrap(.~agp_clin, scales = "free_x")
+
 
 ################### STATISTICAL ANALYSIS #########################
 #6 months
