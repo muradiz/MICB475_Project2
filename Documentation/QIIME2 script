@@ -1,0 +1,138 @@
+## QIIME2 script
+
+#Importing data using a manifest file
+qiime tools import \
+--type "SampleData[SequencesWithQuality]" \
+--input-format SingleEndFastqManifestPhred33V2 \
+--input-path ./anemia_manifest.txt \
+--output-path ./demux_seqs.qza
+
+#Creating visualization of demultiplexed samples
+qiime demux summarize \
+--i-data ./demux_seqs.qza \
+--o-visualization ./demux_seqs.qzv
+
+##Copy this from server to local computer to visualize demux_seqs.qzv via scp
+
+###Note: Trimming was originally performed using 300 bp as the truncation length, but it gave us too few taxa to work with. Truncation length was then changed to 250 bp.
+
+#Trimming to 250 bp
+#Made a separate directory named "trimmed-to-250-data" 
+
+mkdir trimmed-to-250-data
+
+##Trimming
+#Determining ASVs with DADA2
+qiime dada2 denoise-single \
+--i-demultiplexed-seqs demux_seqs.qza \
+--p-trim-left 0 \
+--p-trunc-len 250 \
+--o-representative-sequences /data/project_2/trimmed-to-250-data/rep-seqs_250.qza \
+--o-table /data/project_2/trimmed-to-250-data/table_250.qza \
+--o-denoising-stats /data/project_2/trimmed-to-250-data/stats_250.qza
+  
+##Moving to trimmed-to-250-data directory
+cd trimmed-to-250-data
+
+#Visualize DADA2 stats
+qiime metadata tabulate \
+--m-input-file stats_250.qza \
+--o-visualization stats_250.qzv
+
+#Visualizing ASVs stats
+qiime feature-table summarize \
+--i-table table_250.qza \
+--o-visualization table_250.qzv \
+--m-sample-metadata-file /data/project_2/anemia_metadata.txt
+
+qiime feature-table tabulate-seqs \
+--i-data rep-seqs_250.qza \
+--o-visualization rep-seqs_250.qzv
+
+qiime feature-classifier extract-reads \
+--i-sequences /data/project_2/training-feature-classifiers/silva-138-99-seqs.qza \
+--p-f-primer GTGCCAGCMGCCGCGGTAA \
+--p-r-primer GGACTACHVGGGTWTCTAAT \
+--p-trunc-len 250 \
+--o-reads ref-seqs_250.qza \
+
+qiime feature-classifier classify-sklearn \
+--i-classifier /mnt/datasets/classifiers/silva-138-99-nb-classifier.qza \
+--i-reads rep-seqs_250.qza \
+--o-classification taxonomy_trimmed_250.qza
+
+qiime metadata tabulate \
+--m-input-file taxonomy_trimmed_250.qza \
+--o-visualization taxonomy_trimmed_250.qzv
+  
+#Creating taxonomy barplots
+qiime taxa barplot \
+--i-table table_250.qza \
+--i-taxonomy taxonomy_trimmed_250.qza \
+--m-metadata-file /data/project_2/anemia_metadata.txt \
+--o-visualization taxa-bar-plots_trimmed_250.qzv
+
+#Taxonomy-based filtering
+qiime taxa filter-table \
+--i-table table_250.qza \
+--i-taxonomy taxonomy_trimmed_250.qza \
+--p-exclude mitochondria,chloroplast \
+--o-filtered-table table-no-mitochondria-no-chloroplast.qza
+
+qiime feature-table summarize \
+--i-table table-no-mitochondria-no-chloroplast.qza \
+--o-visualization table-no-mitochondria-no-chloroplast.qzv \
+--m-sample-metadata-file /data/project_2/anemia_metadata.txt 
+
+##Downloaded files into local computer via scp
+
+# Generate a tree for phylogenetic diversity analyses
+qiime phylogeny align-to-tree-mafft-fasttree \
+--i-sequences rep-seqs_250.qza \
+--o-alignment aligned-rep-seqs.qza \
+--o-masked-alignment masked-aligned-rep-seqs.qza \
+--o-tree unrooted-tree.qza \
+--o-rooted-tree rooted-tree.qza 
+
+##Downloaded files into local computer via scp
+
+#Metadata-based filtering
+### Choosing 6 and 12-month-old infants with no anemia and no parasites
+qiime feature-table filter-samples \
+--i-table table_250.qza \
+--m-metadata-file /data/project_2/anemia_metadata.txt \
+--p-where "[anemia]='normal' AND [parasites]='N'" \
+--o-filtered-table 6_and_12_months_filtered-table.qza
+
+#Converting .qza to .qzv
+qiime feature-table summarize \
+--i-table 6_and_12_months_filtered-table.qza \
+--o-visualization 6_and_12_months_filtered-table.qzv \
+--m-sample-metadata-file /data/project_2/anemia_metadata.txt
+
+##Downloaded files into local computer via scp
+
+##Rarefaction and downstream analyses were performed in RStudio
+
+###Exporting files into RStudio
+#Exporting count table
+qiime tools export \
+--input-path table_250.qza \
+--output-path /data/project_2/trimmed-to-250-data/export
+
+#Converting the resulting .biom file to .tsv
+biom convert \
+-i feature-table.biom \
+-o table_250.tsv --to-tsv
+
+#Exporting taxonomy file to tsv file
+qiime tools export \
+--input-path taxonomy_trimmed_250.qza \
+--output-path /data/project_2/trimmed-to-250-data/export
+
+#Export rooted tree as nwk
+qiime tools export \
+--input-path rooted-tree.qza \
+--output-path /data/project_2/trimmed-to-250-data/export
+
+##Downloaded directory into local computer via scp-r
