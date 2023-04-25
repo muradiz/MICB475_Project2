@@ -1,0 +1,355 @@
+#load packages
+library(phyloseq)
+library(ape) # importing trees
+library(tidyverse)
+library(vegan)
+library(dplyr)
+library(ggplot2)
+library(ggforce)
+library(DESeq2)
+library(indicspecies)
+
+anemia_metadata <- read_delim("Files_from_Processing/anemia_metadata.txt", delim="\t")
+tax <- read_delim("Files_from_Processing/Exported_files/taxonomy.tsv", delim="\t")
+
+#only keep healthy infant samples
+filtered_meta_healthy <- filter(anemia_metadata, anemia == "normal", parasites == "N")
+# filter out samples with no agp value
+filtered_meta_healthy_agp <- filtered_meta_healthy[!is.na(as.numeric(filtered_meta_healthy$agp)),]
+
+#make metadata file for only 6 month infant samples
+meta_6m_agp <-  filter(filtered_meta_healthy_agp, age_months == 6)
+#make metadata file for only month infant samples
+meta_12m_agp <- filter(filtered_meta_healthy_agp, age_months == 12)
+
+##create column based on clinical AGP value - 6m
+meta_6m_agp$agp_clin <- ifelse(meta_6m_agp$agp >= 1,"Above", "Below")
+#create column based on clinical AGP value - 12m
+meta_12m_agp$agp_clin <- ifelse(meta_12m_agp$agp >= 1,"Above", "Below")
+
+# Select columns
+meta_6m_filt_agp <- select(meta_6m_agp, "#SampleID", "host_subject_id", "sex", "agp", "agp_status", "agp_clin", "infection_status")
+meta_12m_filt_agp <- select(meta_12m_agp, "#SampleID", "host_subject_id", "sex", "agp", "agp_status", "agp_clin", "infection_status")
+
+#save files
+save(meta_6m_filt_agp, file = "agp_sorted_metadata_6m.RData")
+save(meta_12m_filt_agp, file = "agp_sorted_metadata_12m.RData")
+
+# Save as txt files - NOT WORKING
+write.table(meta_12m_filt_agp, file = "agp_sorted_metadata_12m.txt", sep="\t", quote=FALSE, row.names=FALSE)
+write.table(meta_6m_filt_agp, file = "agp_sorted_metadata_6m.txt", sep="\t", quote=FALSE, row.names=FALSE)
+
+
+#load in metadata and taxonomy tsvs
+otu <- read_delim(file="Files_from_Processing/Exported_files/table_250.tsv", delim = "\t", skip=1)
+tax <- read_delim(file = "Files_from_Processing/Exported_files/taxonomy.tsv", delim="\t")
+meta <- read_delim("agp_sorted_metadata_6m.txt", delim="\t")
+phylotree <- read.tree(file = "Files_from_Processing/Exported_files/tree.nwk")
+
+#rename first column of metadata
+names(meta)[names(meta) == '#SampleID'] <- 'sampleid'
+
+#filtering otu and tax files
+otu_filt <- otu %>% select("#OTU ID", one_of(meta$sampleid))
+
+tax_sep <- tax %>%
+  separate(col=Taxon, sep=";", into = c("Kingdom", "Phylum","Class","Order","Family","Genus","Species"))
+
+
+#### Format OTU table ####
+
+# save everything except first column (OTU ID) into a matrix
+otu_mat <- as.matrix(otu[,-1])
+# Make first column (#OTU ID) the rownames of the new matrix
+rownames(otu_mat) <- otu$`#OTU ID`
+# Use the "otu_table" function to make an OTU table
+OTU <- otu_table(otu_mat, taxa_are_rows = TRUE) 
+class(OTU)
+
+#### Format sample metadata ####
+# Save everything except sampleid as new data frame
+samp_df <- as.data.frame(meta[,-1])
+# Make sampleids the rownames
+rownames(samp_df)<- meta$sampleid
+# Make phyloseq sample data with sample_data() function
+SAMP <- sample_data(samp_df)
+class(SAMP)
+
+
+
+#### Formatting taxonomy ####
+# Convert taxon strings to a table with separate taxa rank columns
+tax_mat <- tax %>% select(-Confidence) %>%
+  separate(col=Taxon, sep="; "
+           , into = c("Domain","Phylum","Class","Order","Family","Genus","Species")) %>%
+  as.matrix() # Saving as a matrix
+# Save everything except feature IDs 
+tax_mat <- tax_mat[,-1]
+# Make sampleids the rownames
+rownames(tax_mat) <- tax$"Feature ID"
+# Make taxa table
+TAX <- tax_table(tax_mat)
+class(TAX)
+
+class(phylotree)
+
+#### Create phyloseq object ####
+# Merge all into a phyloseq object
+agp_infant_6m <- phyloseq(OTU, SAMP, TAX, phylotree)
+
+otu_table(agp_infant_6m)
+sample_data(agp_infant_6m)
+tax_table(agp_infant_6m)
+phy_tree(agp_infant_6m)
+
+
+#### Accessor functions ####
+# These functions allow you to see or summarise data
+
+# If we look at sample variables and decide we only want some variables, we can view them like so:
+sample_variables(agp_infant_6m)
+# colnames(sample_data(infant_6m))
+get_variable(agp_infant_6m, c("agp", "agp_status")) # equivalent to "select" in tidyverse
+
+## Let's say we want to filter OTU table by sample. 
+# What is the sum of reads in each sample?
+sample_sums(agp_infant_6m)
+# Save the sample names of the 3 samples with the most reads
+getsamps <- names(sort(sample_sums(agp_infant_6m), decreasing = TRUE)[1:3])
+# filter to see taxa abundances for each sample
+get_taxa(agp_infant_6m, getsamps) 
+
+
+## Conversely, let's say we want to compare OTU abundance of most abundant OTU across samples
+# Look at taxa names
+taxa_names(agp_infant_6m)
+# How many taxa do we have?
+ntaxa(agp_infant_6m)
+# What is the total read count for each taxa?
+taxa_sums(agp_infant_6m)
+# Let's find the top 3 most abundant taxa
+gettaxa <- names(sort(taxa_sums(agp_infant_6m), decreasing = TRUE)[1:3] )
+get_sample(agp_infant_6m, gettaxa)
+
+######### ANALYZE ##########
+# Remove non-bacterial sequences, if any
+agp_infant_6m_filt <- subset_taxa(agp_infant_6m,  Domain == "d__Bacteria" & Class!="c__Chloroplast" & Family !="f__Mitochondria")
+# Remove ASVs that have less than 5 counts total
+agp_infant_6m_filt_nolow <- filter_taxa(agp_infant_6m_filt, function(x) sum(x)>5, prune = TRUE)
+# Genus Level
+agp_infant_6m_genus <- tax_glom(agp_infant_6m_filt_nolow, "Genus")
+# Remove samples with less than 100 reads
+agp_infant_6m_filt_nolow_samps <- prune_samples(sample_sums(agp_infant_6m_genus)>100, agp_infant_6m_filt_nolow)
+# Remove samples where agp is na
+agp_infant_6m_final <- subset_samples(agp_infant_6m_filt_nolow_samps, !is.na(agp) )
+
+# Rarefy samples #########
+# rngseed sets a random number. If you want to reproduce this exact analysis, you need
+# to set rngseed the same number each time
+rarecurve(t(as.data.frame(otu_table(agp_infant_6m_final))), cex=0.1)
+agp_infant_6m_rare <- rarefy_even_depth(agp_infant_6m_final, rngseed = 1, sample.size = 15000)
+
+agp_infant_6m_rare
+
+
+##### Saving #####
+save(agp_infant_6m_final, file="agp_infant_6m_final.RData")
+save(agp_infant_6m_rare, file="agp_infant_6m_rare.RData")
+
+
+########################### DIVERSITY ANALYSIS ################################
+
+#Alpha Diversity Plots
+plot_richness(agp_infant_6m_rare)
+# select certain alpha diversity metrics
+
+plot_richness(agp_infant_6m_rare, measures = c("Shannon","Chao1"))
+# Add ggplot layers if desired to adjust visuals
+plot_richness(agp_infant_6m_rare, x = "agp_clin", measures = c("Shannon","Chao1")) +
+  xlab("agp_clin") +
+  geom_boxplot()
+
+##Beta Diversity Plots
+bc_dm <- phyloseq::distance(agp_infant_6m_rare, method="bray")
+pcoa_bc <- ordinate(agp_infant_6m_rare, method="PCoA", distance=bc_dm)
+
+plot_ordination(agp_infant_6m_rare, pcoa_bc, color = "agp", shape="agp_clin") +
+  scale_color_gradient(low="darkgreen", high="lightblue") +
+  labs(pch="AGP Clincal Levels", col = "AGP (g/L)")
+
+
+#create a taxa summaries plot
+agp_infant_6m_RA <- transform_sample_counts(agp_infant_6m_rare, function(x) x/sum(x))
+plot_bar(agp_infant_6m_RA, fill="Phylum") 
+agp_infant_6m_phylum <- tax_glom(agp_infant_6m_RA, taxrank = "Phylum", NArm=FALSE)
+plot_bar(agp_infant_6m_phylum, fill="Phylum") +
+  facet_wrap(.~agp_clin, scales = "free_x")
+
+################### STATISTICAL ANALYSIS #########################
+
+#load files
+load("agp_infant_6m_rare.RData")
+
+#t-test analysis
+######## Comparison of two means with t-test (Parametric) ##########
+# Let's do very simple plot with t-test
+plot_richness(agp_infant_6m_rare, x = "agp_clin", measures="Shannon")
+# Need to extract information
+alphadiv <- estimate_richness(agp_infant_6m_rare)
+samp_dat <- sample_data(agp_infant_6m_rare)
+samp_dat_wdiv <- data.frame(samp_dat, alphadiv)
+# These are equivalent:
+# t.test()
+t.test(samp_dat_wdiv$Shannon ~ samp_dat_wdiv$agp_clin)
+t.test(Shannon ~ agp_clin, data=samp_dat_wdiv)
+
+# Note: you can set variances to be equal for a "classic" t-test
+t.test(Shannon ~ agp_clin, data=samp_dat_wdiv, var.equal=TRUE)
+
+
+#### Microbial count data is generally NON-NORMAL ####
+# In fact, it is even more complex because microbial data is usually in RELATIVE ABUNDANCE
+allCounts <- as.vector(otu_table(agp_infant_6m_rare))
+allCounts <- allCounts[allCounts>0]
+hist(allCounts)
+hist(log(allCounts))
+
+
+#remove 0 values
+samp_dat_wdiv %>%
+  filter(!is.na(agp)) %>%
+  ggplot(aes(x=agp_clin, y=agp))+
+  geom_point() 
+
+#check distribution:
+ggplot(samp_dat_wdiv) +
+  geom_histogram(aes(x=agp), bins=25)
+
+#logging everything to deal with non-parametric distribution
+# (1) Transform your data (usually with a log function)
+ggplot(samp_dat_wdiv) +
+  geom_histogram(aes(x=log(agp)), bins=25)
+t.test(log(agp) ~ agp_clin, data=samp_dat_wdiv)
+# Let's see what transformed data looks like:
+samp_dat_wdiv %>%
+  filter(!is.na(agp)) %>%
+  ggplot(aes(x=agp_clin, y=log(agp)))+
+  geom_boxplot() +
+  geom_jitter()
+
+
+#Wilcoxon Rank Sum Test
+wilcox.test(agp ~ agp_clin, data=samp_dat_wdiv)
+wilcox.test(log(agp) ~ agp_clin, data=samp_dat_wdiv)
+
+
+
+#PERMANOVA Analysis
+##load data
+samp_dat_wdiv <- data.frame(sample_data(agp_infant_6m_rare), estimate_richness(agp_infant_6m_rare))
+
+### PERMANOVA (Permutational ANOVA) ####
+# non-parametric version of ANOVA
+# Takes a distance matrix, which can be calculated with any kind of metric you want
+# e.g. Bray, Jaccard, Unifrac
+# Need the package, "vegan"
+# Use phyloseq to calculate weighted Unifrac distance matrix
+?UniFrac
+dm_unifrac <- UniFrac(agp_infant_6m_rare, weighted=TRUE)
+?adonis2
+adonis2(dm_unifrac ~ agp_clin, data=samp_dat_wdiv)
+
+# Also use other metrics: for example, the vegan package includes bray and jaccard
+dm_bray <- vegdist(t(otu_table(agp_infant_6m_rare)), method="bray")
+adonis2(dm_bray ~ agp_clin, data=samp_dat_wdiv)
+
+dm_jaccard <- vegdist(t(otu_table(agp_infant_6m_rare)), method="jaccard")
+adonis2(dm_jaccard ~ agp_clin, data=samp_dat_wdiv)
+
+##################### DESEQ ANALYSIS #############################
+
+#setting random seed 
+set.seed(1)
+
+#Need to filter anything????
+agp_infant_6m_final
+
+#DESEq (No need to rarefaction [use infant_6m_final])
+#ERROR Message regarding genes having 0 reads.
+#Need to add '1' read count to all genes [LIMITATION]
+infant_6m_plus1 <- transform_sample_counts(agp_infant_6m_final, function(x) x+1)
+infant_6m_deseq <- phyloseq_to_deseq2(infant_6m_plus1, ~agp_clin)
+DESEQ_infant_6m <- DESeq(infant_6m_deseq)
+
+#Viewing Results
+res <- results(DESEQ_infant_6m, tidy=TRUE)
+View(res)
+
+#Filtering out the ASV results with N.A. values for p adjusted values
+filtered_res <- drop_na(res, padj)
+view(filtered_res)
+
+#### Visualizing the results of DESEq ####
+#Chose p value <0.05, and significant fold change >2
+
+
+##Volcano Plot##
+vol_plot <- ggplot(filtered_res, aes(x=log2FoldChange, y=-log(padj))) +
+  geom_point()
+vol_plot_sig <- filtered_res |>
+  mutate(significant = padj<0.05 & abs(log2FoldChange) >2) |>
+  ggplot(aes(x=log2FoldChange, y=-log10(padj), col= significant)) +
+  geom_point()
+
+vol_plot            
+vol_plot_sig
+
+#Significant ASVs table
+sigASVs <- filtered_res |>
+  filter(padj <0.05 & abs(log2FoldChange)>2) |>
+  dplyr::rename(ASV=row)
+
+save(sigASVs, file= "Files_from_Processing/DESeq files/DESEq_sigASVs")
+
+view(sigASVs)
+
+#BarPlot
+#removed any Genus that has NA
+
+sigASVs_vec <- sigASVs |>
+  pull(ASV)
+
+infant_6m_DESeq <- prune_taxa(sigASVs_vec, agp_infant_6m_final)
+
+sigASVs <- tax_table(infant_6m_DESeq) |>
+  as.data.frame() |>
+  rownames_to_column(var="ASV") |>
+  right_join(sigASVs) |>
+  arrange(log2FoldChange) |>
+  mutate(Genus = make.unique(Genus)) |>
+  mutate(Genus = factor(Genus, levels= unique(Genus)))|>
+  drop_na(Genus) |>
+  filter(Genus != "NA.2" & Genus != "NA.1")
+
+view(sigASVs)
+
+bar_plot <- ggplot(sigASVs) +
+  geom_bar(aes(x=Genus, y=log2FoldChange), stat ="identity") +
+  geom_errorbar(aes(x=Genus, ymin=log2FoldChange-lfcSE, ymax=log2FoldChange+lfcSE)) +
+  theme(axis.text.x = element_text(angle=90, hjust=1, vjust=0.5))
+bar_plot
+
+
+################## INDICATOR SPECIES ANALYSIS ####################
+
+#ISA AGP 6 months
+agp_genus_6m <- tax_glom(agp_infant_6m, "Genus", NArm= FALSE)
+agp_genus_RA_6m <- transform_sample_counts(agp_genus_6m, fun=function(x) x/sum(x))
+
+isa_agp_6m <- multipatt(t(otu_table(agp_genus_RA_6m)), cluster = sample_data(agp_genus_RA_6m)$agp_clin)
+summary(isa_agp_6m)
+taxtable_6m_agp <- tax_table(agp_infant_6m) %>% as.data.frame() %>% rownames_to_column(var="ASV")
+
+isa_agp_6m$sign %>% rownames_to_column(var="ASV") %>%
+  left_join(taxtable_6m_agp) %>% filter(p.value<0.05) %>% View()
+
